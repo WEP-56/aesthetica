@@ -68,6 +68,7 @@ Aesthetica 不比较：
 * 提供灵感
 * 引导风格
 * 补全功能
+* 使用skills、mcp
 
 模型需要自行完成：
 
@@ -119,9 +120,21 @@ Aesthetica 不比较：
 
 ## 查看作品
 
-| Model       | Theme | Style | Status |
-| ----------- | ----- | ----- | ------ |
-| Gemini-3.5-thinking | -     | -     | 🚧     |
+| Model       | Theme | Status |
+| ----------- | ----- | ------ |
+| Gemini      | Cyber Organism      | ✅ |
+| Claude      | Precision Organism   | ✅ |
+| GPT         | Digital Rites       | ✅ |
+| DeepSeek    | Algorithmic Zen     | ✅ |
+| MiniMax     | Tidal Ebb           | ✅ |
+| GLM         | Tidal Reverie       | ✅ |
+| Kimi        | Attenuated Presence | ✅ |
+| Seed        | Ephemeral Breath    | ✅ |
+| Qwen        | Ephemeris           | ✅ |
+| Grok        | Rift                | ✅ |
+| Mimo        | Attending           | ✅ |
+
+GitHub Pages is deployed from the repository root through GitHub Actions.
 
 ---
 

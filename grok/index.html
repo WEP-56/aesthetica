@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隙</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #f8f2e9;
+            --ink: #2c2c2c;
+            --ink-light: #5c5c5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #e8d9c7;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 纸张质感 */
+        .notebook {
+            width: 680px;
+            min-height: 520px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #d4c3a8,
+                12px 20px 40px -10px rgba(0, 0, 0, 0.25),
+                inset 0 0 80px rgba(180, 140, 90, 0.08);
+            padding: 80px 70px;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+        }
+
+        .notebook:hover {
+            transform: translateY(-8px) rotate(0.3deg);
+        }
+
+        /* 纸张纹理 */
+        .notebook::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent,
+                transparent 4px,
+                rgba(140, 110, 80, 0.035) 4px,
+                rgba(140, 110, 80, 0.035) 5px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 6.8rem;
+            font-weight: 300;
+            letter-spacing: -0.08em;
+            line-height: 1;
+            margin-bottom: 12px;
+            color: #1f1f1f;
+            position: relative;
+            z-index: 2;
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--ink-light);
+            letter-spacing: 0.25em;
+            margin-bottom: 110px;
+            opacity: 0.75;
+            font-weight: 300;
+        }
+
+        .moments {
+            font-size: 1.05rem;
+            line-height: 2.35;
+            color: var(--ink-light);
+            max-width: 380px;
+        }
+
+        .moment {
+            display: block;
+            color: var(--ink-light);
+            text-decoration: none;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .moment:hover {
+            color: #1f1f1f;
+            padding-left: 18px;
+        }
+
+        .moment:hover::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            opacity: 0.4;
+        }
+
+        .footer-text {
+            position: absolute;
+            bottom: 42px;
+            right: 70px;
+            font-size: 0.78rem;
+            color: #9b8a6e;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
+        .date {
+            position: absolute;
+            top: 52px;
+            right: 70px;
+            font-size: 0.82rem;
+            color: #9b8a6e;
+            opacity: 0.55;
+            letter-spacing: 0.08em;
+        }
+    </style>
+</head>
+<body>
+    <div class="notebook">
+        <div class="date">2019 — 2026</div>
+        
+        <h1>隙</h1>
+        <div class="subtitle">一些没被好好存放的瞬间</div>
+        
+        <div class="moments">
+            <a href="午后三点十七分.html" class="moment">午后三点十七分</a>
+            <a href="忘记关的灯.html" class="moment">忘记关的灯</a>
+            <a href="地铁上的眼睛.html" class="moment">地铁上的眼睛</a>
+            <a href="梦见你那天.html" class="moment">梦见你那天</a>
+            <a href="雨声太大了.html" class="moment">雨声太大了</a>
+            <a href="写给明年的我.html" class="moment">写给明年的我</a>
+        </div>
+
+        <div class="footer-text">
+            如果你偶然发现这本笔记本<br>
+            请轻轻地，不要惊动它
+        </div>
+    </div>
+
+    <script>
+        // 轻微的纸张呼吸感
+        const notebook = document.querySelector('.notebook');
+        
+        notebook.addEventListener('mousemove', (e) => {
+            const rect = notebook.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            
+            notebook.style.transform = `
+                perspective(1000px)
+                rotateX(${-y * 6}deg)
+                rotateY(${x * 8}deg)
+                translateY(-8px)
+            `;
+        });
+
+        notebook.addEventListener('mouseleave', () => {
+            notebook.style.transform = 'translateY(-8px) rotate(0.3deg)';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水面</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: rgb(13,21,32);
+    font-family: 'Songti SC', 'SimSun', 'Noto Serif CJK SC', 'Source Han Serif SC', serif;
+  }
+
+  /* 中央光圈——日出的光 */
+  .glow {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0; height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,238,210,0.10) 0%, rgba(255,238,210,0.03) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    transition: width 22s ease, height 22s ease;
+  }
+  .glow.dawn {
+    width: 220vmax;
+    height: 220vmax;
+  }
+
+  /* 中央文字 */
+  .content {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+    width: 90%;
+    max-width: 480px;
+  }
+
+  .main-text {
+    font-size: 17px;
+    line-height: 2.6;
+    letter-spacing: 2.5px;
+    color: rgba(175,165,148,0.6);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 2.5s ease, transform 2.5s ease, color 4s ease;
+  }
+  .main-text.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .main-text .gap {
+    display: block;
+    height: 14px;
+  }
+
+  /* 底部回声 */
+  .echo {
+    position: fixed;
+    bottom: 46px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 9px;
+    color: rgba(155,145,128,0);
+    transition: color 4s ease;
+    user-select: none;
+    z-index: 2;
+  }
+  .echo.show {
+    color: rgba(155,145,128,0.32);
+  }
+
+  /* 最终消散 */
+  .fade-out {
+    opacity: 0 !important;
+    transition: opacity 6s ease !important;
+  }
+</style>
+</head>
+<body>
+
+<div class="glow" id="glow"></div>
+
+<div class="content">
+  <div class="main-text" id="mainText">
+    天亮了。<span class="gap"></span>
+    那些你想起来的，<span class="gap"></span>
+    和那些你没有想起来的，<span class="gap"></span>
+    它们都在那里。
+  </div>
+</div>
+
+<div class="echo" id="echo">你听到了</div>
+
+<script>
+const mainText = document.getElementById('mainText');
+const echo = document.getElementById('echo');
+const glow = document.getElementById('glow');
+
+const start = performance.now();
+let textShown = false;
+let echoShown = false;
+let glowStarted = false;
+let fadingOut = false;
+
+function tick(now) {
+  const elapsed = (now - start) / 1000;
+
+  /* 1.5s: 文字淡入 */
+  if (elapsed > 1.5 && !textShown) {
+    textShown = true;
+    mainText.classList.add('show');
+  }
+
+  /* 3s: 光圈开始扩散 */
+  if (elapsed > 3 && !glowStarted) {
+    glowStarted = true;
+    glow.classList.add('dawn');
+  }
+
+  /* 7s: 底部回声 */
+  if (elapsed > 7 && !echoShown) {
+    echoShown = true;
+    echo.classList.add('show');
+  }
+
+  /* 背景色缓慢变亮 */
+  const t = Math.min(1, elapsed / 28);
+  const s = t * t * (3 - 2 * t); // smoothstep
+  const r = Math.round(13 + s * 187);
+  const g = Math.round(21 + s * 171);
+  const b = Math.round(32 + s * 149);
+  document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
+
+  /* 文字颜色随背景调整 */
+  if (s > 0.25) {
+    const ct = (s - 0.25) / 0.75;
+    const tr = Math.round(175 - ct * 120);
+    const tg = Math.round(165 - ct * 112);
+    const tb = Math.round(148 - ct * 100);
+    mainText.style.color = `rgba(${tr},${tg},${tb},0.72)`;
+  }
+
+  /* 回声颜色 */
+  if (s > 0.3) {
+    const et = (s - 0.3) / 0.7;
+    const er = Math.round(155 - et * 90);
+    const eg = Math.round(145 - et * 82);
+    const eb = Math.round(128 - et * 70);
+    echo.style.color = `rgba(${er},${eg},${eb},${0.32 + et * 0.1})`;
+  }
+
+  /* 35s: 最终消散 */
+  if (elapsed > 35 && !fadingOut) {
+    fadingOut = true;
+    mainText.classList.add('fade-out');
+    echo.classList.add('fade-out');
+  }
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

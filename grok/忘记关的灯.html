@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>忘记关的灯</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #f4ede1;
+            --ink: #2c2a27;
+            --light: #ffe8b3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #2c2720;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page {
+            width: 700px;
+            min-height: 520px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #d8c9b0,
+                20px 30px 60px -15px rgba(0, 0, 0, 0.6),
+                inset 0 0 120px rgba(255, 230, 140, 0.25);
+            padding: 90px 88px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 灯的光晕 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: -45%;
+            left: -35%;
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle at 38% 28%, 
+                rgba(255, 242, 180, 0.75) 0%,
+                rgba(255, 210, 110, 0.35) 35%,
+                transparent 65%);
+            filter: blur(45px);
+            z-index: 1;
+            animation: flicker 8s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.82; transform: scale(1); }
+            100% { opacity: 0.95; transform: scale(1.03); }
+        }
+
+        .page::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent,
+                transparent 5px,
+                rgba(120, 85, 45, 0.035) 5px,
+                rgba(120, 85, 45, 0.035) 7px
+            );
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: 2.1rem;
+            font-weight: 300;
+            letter-spacing: 0.12em;
+            color: #3f2e1e;
+            margin-bottom: 78px;
+            position: relative;
+            z-index: 5;
+            border-bottom: 1px solid rgba(140, 95, 45, 0.15);
+            padding-bottom: 18px;
+        }
+
+        .text {
+            font-size: 1.07rem;
+            line-height: 2.25;
+            color: #38342e;
+            max-width: 425px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .text p {
+            margin-bottom: 2.05em;
+        }
+
+        .text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .back {
+            position: absolute;
+            bottom: 52px;
+            left: 88px;
+            font-size: 0.83rem;
+            color: #8c6f4f;
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            opacity: 0.55;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .back:hover {
+            opacity: 0.9;
+            color: #5c4228;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 52px;
+            right: 88px;
+            font-size: 0.78rem;
+            color: #9b7f5e;
+            opacity: 0.35;
+            letter-spacing: 0.1em;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="title">忘记关的灯</div>
+        
+        <div class="text">
+            <p>我已经睡下了，却忽然想起客厅的灯还亮着。</p>
+            <p>我没有起身。</p>
+            <p>让它亮着吧，像一个固执的人守着空房间。它照着那张没人坐的沙发，照着茶几上我昨天没喝完的水，照着空气里漂浮的、谁也看不见的灰尘。</p>
+            <p>它亮得那么安静，像在等一个永远不会回来的人。</p>
+            <p>我躺在黑暗里，听见自己的心跳，忽然觉得那盏灯比我更孤独。它不知道自己被忘记了，它只是一直亮着，用一种近乎愚蠢的忠诚。</p>
+            <p>很多事情都是这样。</p>
+            <p>我们把一些东西留在亮着的地方，然后走开，再也没有回去关掉它们。它们就这样替我们继续亮着，替我们继续等着，替我们把那个瞬间延长成好几年。</p>
+            <p>而我闭上眼睛，假装自己睡着了。</p>
+        </div>
+
+        <a href="index.html" class="back">← 隙</a>
+        <div class="date">2021.11.03  02:14</div>
+    </div>
+</body>
+</html>

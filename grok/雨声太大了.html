@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雨声太大了</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #e8e4d9;
+            --ink: #2c2a27;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1f252e;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page {
+            width: 710px;
+            min-height: 560px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #c8c0aa,
+                20px 32px 75px -18px rgba(0, 0, 0, 0.7),
+                inset 0 0 140px rgba(45, 55, 75, 0.22);
+            padding: 90px 94px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 雨痕效果 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                135deg,
+                transparent,
+                transparent 12px,
+                rgba(75, 95, 125, 0.07) 12px,
+                rgba(75, 95, 125, 0.07) 28px
+            );
+            animation: rainFall 4.5s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.65;
+        }
+
+        @keyframes rainFall {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 420px; }
+        }
+
+        /* 雨夜冷光 */
+        .page::after {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 480px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(165, 185, 215, 0.18) 0%, transparent 70%);
+            filter: blur(55px);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: 2.18rem;
+            font-weight: 300;
+            letter-spacing: 0.13em;
+            color: #2c2a27;
+            margin-bottom: 74px;
+            position: relative;
+            z-index: 5;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(95, 95, 85, 0.22);
+        }
+
+        .text {
+            font-size: 1.065rem;
+            line-height: 2.26;
+            color: #35312b;
+            max-width: 440px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .text p {
+            margin-bottom: 2.1em;
+        }
+
+        .text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .back {
+            position: absolute;
+            bottom: 54px;
+            left: 94px;
+            font-size: 0.83rem;
+            color: #6f6555;
+            text-decoration: none;
+            letter-spacing: 0.17em;
+            opacity: 0.58;
+            transition: all 0.6s ease;
+            z-index: 10;
+        }
+
+        .back:hover {
+            opacity: 0.92;
+            letter-spacing: 0.33em;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 54px;
+            right: 94px;
+            font-size: 0.78rem;
+            color: #7f7259;
+            opacity: 0.37;
+            letter-spacing: 0.11em;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="title">雨声太大了</div>
+        
+        <div class="text">
+            <p>雨声太大了。</p>
+            <p>大到把整个世界都关在了外面。我坐在窗边，听见雨水砸在铁皮雨棚上，像无数只手在拼命敲门，却始终进不来。</p>
+            <p>我忽然觉得安全。</p>
+            <p>因为在这片轰鸣里，没有人能听见我心里的声音。那些没说完的话、那些反复咀嚼的遗憾、那些我甚至不敢对自己承认的想念，全都被雨声盖过去了。它们终于可以安静一会儿。</p>
+            <p>灯只开了一盏，很暗。光线落在桌面上，像被雨水稀释过。我把手放在光里，看见影子在微微颤抖，却不知道是我的手在抖，还是光在抖。</p>
+            <p>雨声越来越大，像要把我整个吞掉。</p>
+            <p>我没有反抗。</p>
+            <p>就让它把我淹没吧。在这样巨大的声音里，我终于可以不用假装坚强，也不用假装不在乎。我可以只是一个普通的人，在一个普通的雨夜，被这个世界暂时遗忘。</p>
+            <p>雨声太大了。</p>
+            <p>大到我几乎要相信，连时间都在这场雨里停住了。</p>
+        </div>
+
+        <a href="index.html" class="back">← 隙</a>
+        <div class="date">2024.06.08  23:51</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>梦见你那天</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #f6f0e6;
+            --ink: #2c2a27;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #2a2f38;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page {
+            width: 700px;
+            min-height: 560px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #d8cbb8,
+                18px 28px 65px -12px rgba(0, 0, 0, 0.55),
+                inset 0 0 130px rgba(180, 200, 225, 0.18);
+            padding: 92px 88px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 梦境光晕 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle, 
+                rgba(235, 245, 255, 0.45) 0%,
+                rgba(180, 205, 235, 0.18) 45%,
+                transparent 75%);
+            filter: blur(65px);
+            z-index: 1;
+            animation: dreamBreath 28s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes dreamBreath {
+            0%, 100% { opacity: 0.65; transform: translateX(-50%) scale(0.92); }
+            50% { opacity: 0.85; transform: translateX(-50%) scale(1.08); }
+        }
+
+        .page::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent,
+                transparent 7px,
+                rgba(95, 105, 125, 0.028) 7px,
+                rgba(95, 105, 125, 0.028) 9px
+            );
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: 2.15rem;
+            font-weight: 300;
+            letter-spacing: 0.14em;
+            color: #2c2a27;
+            margin-bottom: 68px;
+            position: relative;
+            z-index: 5;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(110, 105, 95, 0.18);
+        }
+
+        .text {
+            font-size: 1.07rem;
+            line-height: 2.28;
+            color: #35312b;
+            max-width: 435px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .text p {
+            margin-bottom: 2.05em;
+        }
+
+        .text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .back {
+            position: absolute;
+            bottom: 52px;
+            left: 88px;
+            font-size: 0.83rem;
+            color: #7a6f5e;
+            text-decoration: none;
+            letter-spacing: 0.16em;
+            opacity: 0.6;
+            transition: all 0.6s ease;
+            z-index: 10;
+        }
+
+        .back:hover {
+            opacity: 0.9;
+            letter-spacing: 0.28em;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 52px;
+            right: 88px;
+            font-size: 0.78rem;
+            color: #8a7a62;
+            opacity: 0.36;
+            letter-spacing: 0.1em;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="title">梦见你那天</div>
+        
+        <div class="text">
+            <p>我梦见你了。</p>
+            <p>梦里的你比任何记忆都完整。你坐在我十七岁时住过的旧房间里，窗外是永远不会结束的黄昏。光线柔软得像要融化。</p>
+            <p>你没有说话，只是看着我，眼神里没有责备，也没有告别。只有一种近乎残忍的温柔。</p>
+            <p>我在梦里哭了。你伸手想替我擦眼泪，手指却穿过我的脸，像穿过一团雾。我忽然明白：在梦里，我连被你触碰的资格都没有。</p>
+            <p>那一刻我感到前所未有的平静。原来所有没来得及说出口的爱，所有被时间磨损的遗憾，都被小心地收在这一个梦里，像被谁偷偷保管了许多年。</p>
+            <p>然后我醒了。</p>
+            <p>枕头冰凉，房间安静得能听见灰尘落下的声音。你又一次被世界带走，只留给我一个比现实更真实的幻象。</p>
+            <p>从那天起，我既害怕入睡，又渴望入睡。因为只有在梦里，我才能毫无顾忌地、完完整整地再爱你一次。</p>
+        </div>
+
+        <a href="index.html" class="back">← 隙</a>
+        <div class="date">2023.04.12  04:27</div>
+    </div>
+</body>
+</html>

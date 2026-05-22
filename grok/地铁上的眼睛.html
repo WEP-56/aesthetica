@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地铁上的眼睛</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #f2ede4;
+            --ink: #2c2a27;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1c2126;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page {
+            width: 710px;
+            min-height: 540px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #d4c9b6,
+                25px 35px 70px -20px rgba(0, 0, 0, 0.65),
+                inset 0 0 110px rgba(60, 65, 75, 0.18);
+            padding: 88px 92px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 地铁晃动光影 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 40px,
+                rgba(55, 65, 85, 0.035) 40px,
+                rgba(55, 65, 85, 0.035) 82px
+            );
+            animation: move 18s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: -240px 0; }
+        }
+
+        /* 冷白顶灯光晕 */
+        .page::after {
+            content: '';
+            position: absolute;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 420px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(235, 245, 255, 0.22) 0%, transparent 65%);
+            filter: blur(50px);
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.75;
+        }
+
+        .title {
+            font-size: 2.05rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            color: #2c2a27;
+            margin-bottom: 72px;
+            position: relative;
+            z-index: 5;
+            border-bottom: 1px solid rgba(90, 85, 75, 0.2);
+            padding-bottom: 14px;
+        }
+
+        .text {
+            font-size: 1.06rem;
+            line-height: 2.22;
+            color: #35312b;
+            max-width: 445px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .text p {
+            margin-bottom: 2.1em;
+        }
+
+        .text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .back {
+            position: absolute;
+            bottom: 54px;
+            left: 92px;
+            font-size: 0.83rem;
+            color: #7a6f5e;
+            text-decoration: none;
+            letter-spacing: 0.18em;
+            opacity: 0.6;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .back:hover {
+            opacity: 0.95;
+            letter-spacing: 0.32em;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 54px;
+            right: 92px;
+            font-size: 0.79rem;
+            color: #8a7a62;
+            opacity: 0.38;
+            letter-spacing: 0.12em;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="title">地铁上的眼睛</div>
+        
+        <div class="text">
+            <p>晚高峰，第十三站。</p>
+            <p>我抓着吊环，低着头闻着陌生人的头发和潮湿外套混在一起的气味。列车猛地一晃，我下意识抬起头。</p>
+            <p>然后就看见了她。</p>
+            <p>她也在看我。</p>
+            <p>那不是随意扫过的一眼，而是真正地、毫无防备地看着我。像在几百人里突然找到了一个早就认识的人。</p>
+            <p>那一刻，车厢里所有的声音都沉了下去。只剩下车轮与铁轨摩擦的低鸣，像心跳被拉长后的回声。我们对视了大概五六秒，却好像把一整段没来得及开始的关系都过完了。</p>
+            <p>我看见了她眼睛里藏着的一点疲惫、一点温柔，还有一点我永远不会知道的故事。</p>
+            <p>下一站她低头走出车门，背影很快消失在人流里。我甚至不知道她长什么样子——只记得那双眼睛。</p>
+            <p>从那以后，每次地铁进站时我都会不由自主地抬头。好像在等一个永远不会再出现的答案。</p>
+            <p>而那双眼睛，成了我和这座城市之间唯一一次真正的对视。</p>
+        </div>
+
+        <a href="index.html" class="back">← 隙</a>
+        <div class="date">2022.10.19  18:47</div>
+    </div>
+</body>
+</html>

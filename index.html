@@ -26,7 +26,13 @@
       --seed-text: #8c4d1f;
       --qwen-accent: #f0ddff;
       --qwen-text: #7646a8;
+      --glm-accent: #dff4e9;
+      --glm-text: #22704b;
+      --grok-accent: #efe2d6;
+      --grok-text: #8a5531;
       --pending-accent: rgba(17, 16, 16, 0.04);
+      --mimo-accent: #eadff8;
+      --mimo-text: #6d4c8a;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -172,6 +178,18 @@
     .col-qwen .model-label {
       background: var(--qwen-accent);
       color: var(--qwen-text);
+    }
+    .col-glm .model-label {
+      background: var(--glm-accent);
+      color: var(--glm-text);
+    }
+    .col-grok .model-label {
+      background: var(--grok-accent);
+      color: var(--grok-text);
+    }
+    .col-mimo .model-label {
+      background: var(--mimo-accent);
+      color: var(--mimo-text);
     }
     .col-pending .model-label {
       background: var(--pending-accent);
@@ -322,7 +340,7 @@
     <div class="masthead">
       <div class="masthead-left">
         <h1>Model<br>Atlas</h1>
-        <p class="subtitle">Eight live entries and four placeholders</p>
+        <p class="subtitle">Eleven live entries</p>
       </div>
       <div class="masthead-right">
         LOCAL ROOT ENTRY<br>
@@ -437,26 +455,25 @@
         </ul>
       </div>
 
-      <div class="column col-pending">
+      <div class="column col-glm">
         <div class="column-header">
           <span class="model-label">GLM</span>
-          <h2>Reserved<br>Slot</h2>
-          <div class="tagline">Placeholder for work in progress</div>
-          <div class="model-note">No public entry yet.</div>
+          <h2>Tidal<br>Reverie</h2>
+          <div class="tagline">Main index for the GLM folder</div>
+          <div class="model-note">Archive entry for the GLM works.</div>
         </div>
         <ul class="page-list">
-          <li class="page-item pending">
-            <a href="#">
-              <span class="page-num">--</span>
+          <li class="page-item">
+            <a href="glm/index.html">
+              <span class="page-num">00</span>
               <span class="page-info">
-                <span class="page-title">Pending</span>
-                <span class="page-desc">This slot is still being built</span>
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the GLM directory</span>
               </span>
               <span class="page-arrow">&rarr;</span>
             </a>
           </li>
         </ul>
-        <span class="pending-badge">In progress</span>
       </div>
 
       <div class="column col-seed">
@@ -522,76 +539,53 @@
         </ul>
       </div>
 
-      <div class="column col-pending">
+      <div class="column col-grok">
         <div class="column-header">
           <span class="model-label">Grok</span>
-          <h2>Reserved<br>Slot</h2>
-          <div class="tagline">Placeholder for work in progress</div>
-          <div class="model-note">No public entry yet.</div>
+          <h2>Rift</h2>
+          <div class="tagline">Main index for the Grok folder</div>
+          <div class="model-note">Archive entry for the Grok works.</div>
         </div>
         <ul class="page-list">
-          <li class="page-item pending">
-            <a href="#">
-              <span class="page-num">--</span>
+          <li class="page-item">
+            <a href="grok/index.html">
+              <span class="page-num">00</span>
               <span class="page-info">
-                <span class="page-title">Pending</span>
-                <span class="page-desc">This slot is still being built</span>
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Grok directory</span>
               </span>
               <span class="page-arrow">&rarr;</span>
             </a>
           </li>
         </ul>
-        <span class="pending-badge">In progress</span>
       </div>
 
-      <div class="column col-pending">
+      <div class="column col-mimo">
         <div class="column-header">
           <span class="model-label">Mimo</span>
-          <h2>Reserved<br>Slot</h2>
-          <div class="tagline">Placeholder for work in progress</div>
-          <div class="model-note">No public entry yet.</div>
+          <h2>Attending</h2>
+          <div class="tagline">Main index for the Mimo folder</div>
+          <div class="model-note">Archive entry for the Mimo works.</div>
         </div>
         <ul class="page-list">
-          <li class="page-item pending">
-            <a href="#">
-              <span class="page-num">--</span>
+          <li class="page-item">
+            <a href="mimo/index.html">
+              <span class="page-num">00</span>
               <span class="page-info">
-                <span class="page-title">Pending</span>
-                <span class="page-desc">This slot is still being built</span>
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Mimo directory</span>
               </span>
               <span class="page-arrow">&rarr;</span>
             </a>
           </li>
         </ul>
-        <span class="pending-badge">In progress</span>
       </div>
 
-      <div class="column col-pending">
-        <div class="column-header">
-          <span class="model-label">Llama</span>
-          <h2>Reserved<br>Slot</h2>
-          <div class="tagline">Placeholder for work in progress</div>
-          <div class="model-note">No public entry yet.</div>
-        </div>
-        <ul class="page-list">
-          <li class="page-item pending">
-            <a href="#">
-              <span class="page-num">--</span>
-              <span class="page-info">
-                <span class="page-title">Pending</span>
-                <span class="page-desc">This slot is still being built</span>
-              </span>
-              <span class="page-arrow">&rarr;</span>
-            </a>
-          </li>
-        </ul>
-        <span class="pending-badge">In progress</span>
-      </div>
     </div>
 
     <div class="footer">
       <div>MODEL ATLAS / ROOT DIRECTORY / 2026</div>
-      <div>Eight live entries, four reserved slots</div>
+      <div>Eleven live entries, no reserved slots</div>
     </div>
   </div>
 </body>

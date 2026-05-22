@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写给明年的我</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #f9f3e8;
+            --ink: #2c2a27;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #3a2f22;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page {
+            width: 720px;
+            min-height: 580px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #d8c9b0,
+                22px 35px 80px -20px rgba(0, 0, 0, 0.65),
+                inset 0 0 160px rgba(255, 215, 140, 0.22);
+            padding: 95px 98px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 温暖信纸光晕 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 460px;
+            height: 460px;
+            background: radial-gradient(circle, rgba(255, 198, 110, 0.28) 0%, transparent 68%);
+            filter: blur(70px);
+            z-index: 1;
+            animation: warmGlow 35s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes warmGlow {
+            0%, 100% { opacity: 0.65; }
+            50% { opacity: 0.88; }
+        }
+
+        .page::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent,
+                transparent 8px,
+                rgba(165, 115, 55, 0.035) 8px,
+                rgba(165, 115, 55, 0.035) 10px
+            );
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: 2.05rem;
+            font-weight: 300;
+            letter-spacing: 0.16em;
+            color: #3a2f22;
+            margin-bottom: 82px;
+            position: relative;
+            z-index: 5;
+            padding-bottom: 22px;
+            border-bottom: 1px solid rgba(160, 110, 55, 0.18);
+        }
+
+        .text {
+            font-size: 1.07rem;
+            line-height: 2.25;
+            color: #3a342c;
+            max-width: 445px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .text p {
+            margin-bottom: 2.15em;
+        }
+
+        .text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .signature {
+            margin-top: 68px;
+            font-size: 1.02rem;
+            color: #5c4732;
+            opacity: 0.75;
+            letter-spacing: 0.08em;
+        }
+
+        .back {
+            position: absolute;
+            bottom: 56px;
+            left: 98px;
+            font-size: 0.83rem;
+            color: #8c6f4f;
+            text-decoration: none;
+            letter-spacing: 0.18em;
+            opacity: 0.65;
+            transition: all 0.6s ease;
+            z-index: 10;
+        }
+
+        .back:hover {
+            opacity: 1;
+            letter-spacing: 0.35em;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 56px;
+            right: 98px;
+            font-size: 0.79rem;
+            color: #9b7f5e;
+            opacity: 0.45;
+            letter-spacing: 0.12em;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="title">写给明年的我</div>
+        
+        <div class="text">
+            <p>如果你现在读到这封信，说明我又活过了一年。</p>
+            <p>我想告诉你，那些曾经让我夜不能寐的“隙”，那些午后三点十七分的恍惚、忘记关的灯、雨声太大的夜晚、地铁上擦肩而过的眼睛、梦里反复出现却永远触碰不到的人……它们并没有消失。</p>
+            <p>它们只是变成了我的一部分。像旧书里夹着的干花，颜色变淡了，却依然带着当初的气息。</p>
+            <p>希望你不要把心变得太硬。希望你仍然会为一些很小很小的事情心动，仍然会在某个普通的傍晚突然难过，也仍然有勇气把这些难过写下来。</p>
+            <p>如果有一天你又感到孤独，就回来翻翻这本笔记本吧。它不会安慰你，但它会默默陪着你，像我现在陪着未来的你一样。</p>
+            <p>活下去。</p>
+            <p>带着所有没被好好存放的瞬间，带着所有没说完的话，带着所有来不及爱的人，继续往前走。</p>
+            <div class="signature">——去年的你</div>
+        </div>
+
+        <a href="index.html" class="back">← 隙</a>
+        <div class="date">2025.05.22</div>
+    </div>
+</body>
+</html>

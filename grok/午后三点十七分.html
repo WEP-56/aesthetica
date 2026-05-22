@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>午后三点十七分</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&family=Georgia&display=swap');
+
+        :root {
+            --paper: #f8f1e3;
+            --ink: #2c2a27;
+            --light: #e8d9b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #d9c9ac;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', Georgia, serif;
+            color: var(--ink);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page {
+            width: 720px;
+            min-height: 560px;
+            background: var(--paper);
+            box-shadow: 
+                0 0 0 1px #d4c3a8,
+                15px 25px 50px -10px rgba(0, 0, 0, 0.3),
+                inset 0 0 90px rgba(210, 170, 110, 0.15);
+            padding: 85px 95px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(transparent 60%, rgba(255, 238, 180, 0.12) 100%),
+                repeating-linear-gradient(
+                    180deg,
+                    transparent,
+                    transparent 6px,
+                    rgba(180, 130, 70, 0.04) 6px,
+                    rgba(180, 130, 70, 0.04) 8px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 阳光光斑 */
+        .page::after {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: 35%;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(255, 235, 160, 0.22) 0%, transparent 70%);
+            filter: blur(40px);
+            z-index: 2;
+            pointer-events: none;
+            animation: lightMove 25s infinite linear;
+        }
+
+        @keyframes lightMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(35px, 25px) rotate(8deg); }
+        }
+
+        .time {
+            position: absolute;
+            top: 52px;
+            right: 78px;
+            font-size: 7.2rem;
+            font-weight: 200;
+            line-height: 1;
+            color: rgba(160, 110, 65, 0.07);
+            letter-spacing: -0.05em;
+            user-select: none;
+            z-index: 3;
+        }
+
+        h1 {
+            font-size: 1.65rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            margin-bottom: 65px;
+            color: #3a3630;
+            position: relative;
+            z-index: 4;
+        }
+
+        .text {
+            font-size: 1.08rem;
+            line-height: 2.15;
+            color: #3f3a32;
+            max-width: 460px;
+            position: relative;
+            z-index: 4;
+        }
+
+        .text p {
+            margin-bottom: 2.1em;
+        }
+
+        .text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .back {
+            position: absolute;
+            bottom: 48px;
+            left: 95px;
+            font-size: 0.82rem;
+            color: #9b8a6e;
+            text-decoration: none;
+            letter-spacing: 0.12em;
+            opacity: 0.45;
+            transition: all 0.4s ease;
+            z-index: 5;
+        }
+
+        .back:hover {
+            opacity: 0.85;
+            letter-spacing: 0.25em;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 48px;
+            right: 95px;
+            font-size: 0.73rem;
+            color: #a38d6b;
+            opacity: 0.3;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="time">15:17</div>
+        
+        <h1>午后三点十七分</h1>
+        
+        <div class="text">
+            <p>阳光像被谁轻轻按住，停在地板上不肯再动。</p>
+            <p>我坐了很久。久到连知了的声音都变得黏稠，像隔着一层很旧很旧的玻璃在叫。</p>
+            <p>空气里有灰尘在跳舞。我盯着其中一粒看了很久，它好像也盯着我。我们谁都没有先移开眼睛。</p>
+            <p>我忽然想起去年夏天你衬衫领口那道细小的褶皱，然后立刻忘记了自己在想什么。只剩下一阵很轻的疼，像有人用手指按在我胸口最软的地方，却没有用力。</p>
+            <p>时间在这里裂开了一条缝。</p>
+            <p>不是停滞，而是缓慢地、几乎是温柔地漏出来。一粒一粒，像细沙落在木头桌面上，听不见声音，却让人觉得整个下午都会这样漏完。</p>
+            <p>我没有悲伤。</p>
+            <p>只是觉得，如果这个下午永远不结束，我好像也不会反对。</p>
+        </div>
+
+        <a href="index.html" class="back">← 隙</a>
+        <div class="footer">2019.07.14</div>
+    </div>
+</body>
+</html>

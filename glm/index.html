@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>潮汐</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    cursor: default;
+  }
+  .hint {
+    position: fixed;
+    bottom: 52px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Songti SC', 'SimSun', 'Noto Serif CJK SC', 'Source Han Serif SC', serif;
+    font-size: 13px;
+    letter-spacing: 8px;
+    color: rgba(150, 170, 190, 0);
+    user-select: none;
+    pointer-events: none;
+    transition: color 2.5s ease;
+  }
+  .hint.show { color: rgba(150, 170, 190, 0.18); }
+  .hint.fade { color: rgba(150, 170, 190, 0); transition: color 1.2s ease; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hint" id="hint">你听到了吗</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const hintEl = document.getElementById('hint');
+
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* ---- 状态 ---- */
+let mouseX = W / 2, mouseY = H / 2;
+let lightX = W / 2, lightY = H / 2;
+let time = 0;
+let clicked = false;
+let clickTime = 0;
+let fadeProgress = 0;
+let ripples = [];
+let gone = false;
+
+/* ---- 延迟出现提示文字 ---- */
+setTimeout(() => hintEl.classList.add('show'), 2200);
+
+/* ---- 事件 ---- */
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+function triggerClick(x, y) {
+  if (clicked) return;
+  clicked = true;
+  clickTime = time;
+  hintEl.classList.remove('show');
+  hintEl.classList.add('fade');
+  for (let i = 0; i < 7; i++) {
+    ripples.push({
+      x, y,
+      radius: 0,
+      maxRadius: 130 + i * 170,
+      speed: 45 + i * 14,
+      delay: i * 0.38,
+      born: time,
+      baseWidth: 1.6 - i * 0.13
+    });
+  }
+}
+
+canvas.addEventListener('click', e => triggerClick(e.clientX, e.clientY));
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  triggerClick(t.clientX, t.clientY);
+}, { passive: false });
+
+/* ---- 渲染 ---- */
+let lastT = performance.now();
+
+function draw(now) {
+  let dt = Math.min(0.1, (now - lastT) / 1000);
+  lastT = now;
+  time += dt;
+
+  /* 光点位置：极其缓慢地追随鼠标 */
+  const tx = W / 2 + (mouseX - W / 2) * 0.03;
+  const ty = H / 2 + (mouseY - H / 2) * 0.03;
+  lightX += (tx - lightX) * 0.01;
+  lightY += (ty - lightY) * 0.01;
+
+  /* 渐变进度 */
+  if (clicked) fadeProgress = Math.min(1, (time - clickTime) / 5);
+
+  /* 背景 */
+  const p = fadeProgress * fadeProgress;
+  ctx.fillStyle = `rgb(${Math.round(p * 14)},${Math.round(p * 22)},${Math.round(p * 40)})`;
+  ctx.fillRect(0, 0, W, H);
+
+  /* 光点 */
+  if (!clicked) {
+    const breath = Math.sin(time * 0.45) * 0.5 + 0.5;
+    /* 外层光晕 */
+    const outerR = Math.max(1, 110 + breath * 90);
+    const outerA = 0.018 + breath * 0.028;
+    const g1 = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, outerR);
+    g1.addColorStop(0, `rgba(190,210,230,${outerA})`);
+    g1.addColorStop(0.5, `rgba(170,195,220,${outerA * 0.3})`);
+    g1.addColorStop(1, 'rgba(150,180,210,0)');
+    ctx.fillStyle = g1;
+    ctx.beginPath();
+    ctx.arc(lightX, lightY, outerR, 0, Math.PI * 2);
+    ctx.fill();
+    /* 内核 */
+    const coreR = Math.max(1, 3 + breath * 3);
+    const g2 = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, coreR);
+    g2.addColorStop(0, `rgba(225,235,248,${0.1 + breath * 0.08})`);
+    g2.addColorStop(1, 'rgba(200,220,240,0)');
+    ctx.fillStyle = g2;
+    ctx.beginPath();
+    ctx.arc(lightX, lightY, coreR, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    /* 点击后光点缓慢扩散 */
+    const elapsed = time - clickTime;
+    const er = Math.max(1, elapsed * 28);
+    const ea = Math.max(0, 0.05 * (1 - elapsed / 6));
+    if (ea > 0) {
+      const g = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, er);
+      g.addColorStop(0, `rgba(170,195,225,${ea})`);
+      g.addColorStop(0.65, `rgba(140,175,210,${ea * 0.2})`);
+      g.addColorStop(1, 'rgba(120,160,200,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(lightX, lightY, er, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  /* 涟漪 */
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i];
+    const elapsed = time - r.born - r.delay;
+    if (elapsed < 0) continue;
+    r.radius = elapsed * r.speed;
+    const progress = r.radius / r.maxRadius;
+    const alpha = 0.35 * Math.pow(1 - progress, 2.2);
+    if (alpha < 0.002 || r.radius > r.maxRadius) { ripples.splice(i, 1); continue; }
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, Math.max(1, r.radius), 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(155,188,220,${alpha})`;
+    ctx.lineWidth = Math.max(0.2, r.baseWidth * (1 - progress));
+    ctx.stroke();
+  }
+
+  /* 跳转 */
+  if (fadeProgress >= 1 && !gone) {
+    gone = true;
+    setTimeout(() => window.location.href = 'shore.html', 700);
+  }
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

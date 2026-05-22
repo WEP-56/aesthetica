@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岸边</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: linear-gradient(175deg, #090e16 0%, #0c1420 55%, #101c2e 100%);
+    font-family: 'Songti SC', 'SimSun', 'Noto Serif CJK SC', 'Source Han Serif SC', serif;
+  }
+
+  /* 碎片容器 */
+  .shore {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+  }
+
+  .fragment {
+    position: absolute;
+    font-size: 14px;
+    letter-spacing: 2px;
+    line-height: 1.6;
+    color: rgba(130, 155, 180, 0.28);
+    cursor: pointer;
+    user-select: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 1.5s ease, transform 1.5s ease, color 1.4s ease, text-shadow 1.4s ease;
+  }
+  .fragment.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .fragment:hover {
+    color: rgba(220, 195, 140, 0.72);
+    text-shadow: 0 0 22px rgba(220, 195, 140, 0.12);
+  }
+  .fragment.active {
+    color: rgba(220, 195, 140, 0.85);
+    text-shadow: 0 0 28px rgba(220, 195, 140, 0.18);
+  }
+  /* 年代感：部分碎片更淡更小 */
+  .fragment.worn {
+    font-size: 12px;
+    color: rgba(120, 145, 170, 0.16);
+  }
+  .fragment.worn:hover {
+    color: rgba(200, 180, 135, 0.55);
+  }
+
+  /* 遮罩层 */
+  .overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(6, 10, 16, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.9s ease;
+    z-index: 20;
+    cursor: pointer;
+  }
+  .overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .overlay-text {
+    max-width: 440px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 2.2;
+    letter-spacing: 1.5px;
+    color: rgba(200, 185, 155, 0.65);
+    padding: 0 28px;
+    transform: translateY(6px);
+    opacity: 0;
+    transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
+  }
+  .overlay.open .overlay-text {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* 底部波浪 */
+  .waves {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%; height: 110px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* 深处入口 */
+  .to-depth {
+    position: fixed;
+    bottom: 24px;
+    right: 36px;
+    font-size: 12px;
+    letter-spacing: 5px;
+    color: rgba(130, 155, 180, 0.1);
+    text-decoration: none;
+    z-index: 10;
+    transition: color 2.5s ease;
+    user-select: none;
+  }
+  .to-depth:hover { color: rgba(170, 190, 210, 0.35); }
+</style>
+</head>
+<body>
+
+<div class="shore" id="shore"></div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-text" id="overlayText"></div>
+</div>
+
+<canvas class="waves" id="wavesCanvas"></canvas>
+
+<a href="depth.html" class="to-depth">往深处去</a>
+
+<script>
+/* ---- 碎片数据 ---- */
+const data = [
+  { text: '那年夏天的蝉鸣', full: '蝉鸣声很大，大到听不见你在说什么。后来我想，也许你什么都没说。', x: 8, y: 13, worn: false },
+  { text: '你说过的话，我——', full: '我记了很久。可是现在，只剩下一种语气，连内容都模糊了。', x: 56, y: 9, worn: false },
+  { text: '雨天，窗台上', full: '窗台上有一只蜗牛，你说它走得慢但不会迷路。我笑你，但记住了。', x: 30, y: 23, worn: false },
+  { text: '一个人的车站', full: '等了很久的车。身边的人都走了。车来了，我没有上。', x: 74, y: 19, worn: true },
+  { text: '后来再也没有', full: '后来再也没有那样的黄昏。也不是黄昏多特别，是那时候刚好你在。', x: 12, y: 37, worn: false },
+  { text: '那杯咖啡凉了', full: '话说到一半，咖啡凉了。我们没有续杯，也没有继续。', x: 47, y: 35, worn: true },
+  { text: '走了很远的路', full: '走了很远的路，才发现起点和终点是同一个地方。但路上看到的，不是白看的。', x: 79, y: 38, worn: false },
+  { text: '突然想不起来', full: '突然想不起来你的脸。那一刻我有点慌，然后又觉得，也许这样也好。', x: 24, y: 52, worn: false },
+  { text: '那条路的尽头', full: '尽头什么也没有。但走到尽头的过程里，路两旁的树很好看。', x: 60, y: 54, worn: true },
+  { text: '午后的光', full: '午后三点，光从窗帘缝里漏进来，在地板上画了一条线。我踩过去，像跨过一整个下午。', x: 6, y: 66, worn: false },
+  { text: '什么声音', full: '什么声音？没有声音。只是突然觉得，安静也是有一种质地的。', x: 40, y: 68, worn: true },
+  { text: '转身的时候', full: '转身的时候，风刚好吹过来。我犹豫了一下，没有回头。', x: 72, y: 63, worn: false },
+  { text: '大概是秋天', full: '大概是秋天。因为叶子在落，因为空气里有一种说不上来的远。', x: 16, y: 80, worn: true },
+  { text: '记不清了', full: '记不清了。只记得那个时候，有一种很轻的、像要飞起来的感觉。', x: 50, y: 82, worn: false },
+  { text: '还在那里', full: '还在那里。我走了以后，它还在那里。这让我安心，也让我难过。', x: 82, y: 78, worn: true },
+];
+
+/* ---- 创建碎片 ---- */
+const shore = document.getElementById('shore');
+const els = [];
+
+data.forEach((d, i) => {
+  const el = document.createElement('span');
+  el.className = 'fragment' + (d.worn ? ' worn' : '');
+  el.textContent = d.text;
+  el.style.left = d.x + '%';
+  el.style.top = d.y + '%';
+  el.addEventListener('click', () => openOverlay(i));
+  shore.appendChild(el);
+  els.push(el);
+  /* 依次淡入 */
+  setTimeout(() => el.classList.add('visible'), 800 + i * 420);
+});
+
+/* ---- 遮罩 ---- */
+const overlay = document.getElementById('overlay');
+const overlayText = document.getElementById('overlayText');
+let hideTimer = null;
+
+function openOverlay(idx) {
+  overlayText.textContent = data[idx].full;
+  overlay.classList.add('open');
+  els.forEach((el, i) => el.classList.toggle('active', i === idx));
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(closeOverlay, 6500);
+}
+function closeOverlay() {
+  overlay.classList.remove('open');
+  els.forEach(el => el.classList.remove('active'));
+}
+overlay.addEventListener('click', closeOverlay);
+
+/* ---- 波浪 ---- */
+const wc = document.getElementById('wavesCanvas');
+const wctx = wc.getContext('2d');
+
+function resizeW() {
+  wc.width = window.innerWidth;
+  wc.height = 110;
+}
+resizeW();
+window.addEventListener('resize', resizeW);
+
+const waveLayers = [
+  { baseY: 28, amp: 5, freq: 0.005, speed: 0.25, color: 'rgba(16,32,55,0.35)' },
+  { baseY: 38, amp: 7, freq: 0.008, speed: 0.40, color: 'rgba(18,38,62,0.45)' },
+  { baseY: 50, amp: 9, freq: 0.006, speed: 0.32, color: 'rgba(20,42,68,0.55)' },
+  { baseY: 62, amp: 5, freq: 0.011, speed: 0.50, color: 'rgba(16,36,60,0.65)' },
+  { baseY: 74, amp: 6, freq: 0.007, speed: 0.28, color: 'rgba(12,28,50,0.80)' },
+];
+
+let wt = 0;
+function drawWaves() {
+  wt += 0.006;
+  wctx.clearRect(0, 0, wc.width, wc.height);
+  for (const l of waveLayers) {
+    wctx.beginPath();
+    wctx.moveTo(0, wc.height);
+    for (let x = 0; x <= wc.width; x += 3) {
+      const y = l.baseY
+        + Math.sin(x * l.freq + wt * l.speed) * l.amp
+        + Math.sin(x * l.freq * 1.6 + wt * l.speed * 0.7) * l.amp * 0.4;
+      wctx.lineTo(x, y);
+    }
+    wctx.lineTo(wc.width, wc.height);
+    wctx.closePath();
+    wctx.fillStyle = l.color;
+    wctx.fill();
+  }
+  requestAnimationFrame(drawWaves);
+}
+drawWaves();
+</script>
+</body>
+</html>
