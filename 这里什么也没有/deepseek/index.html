@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阈限空间 · Liminal Space</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --text: #c8c8d4;
+            --accent-1: #ff6b6b;
+            --accent-2: #4ecdc4;
+            --accent-3: #ffe66d;
+            --accent-4: #a29bfe;
+            --glass-bg: rgba(20, 20, 35, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            overflow-x: hidden;
+            cursor: crosshair;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ============ 星场背景 Canvas ============ */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ============ 主容器 ============ */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* ============ 标题区域 ============ */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .header .supertitle {
+            font-size: 0.75rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 16px;
+            font-weight: 300;
+        }
+
+        .header h1 {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 200;
+            letter-spacing: 0.08em;
+            color: #e8e8f0;
+            text-shadow: 0 0 120px rgba(180, 180, 220, 0.4), 0 0 30px rgba(160, 160, 200, 0.25);
+            line-height: 1.1;
+        }
+
+        .header h1 .dot {
+            color: var(--accent-2);
+            display: inline-block;
+            animation: pulse-dot 2.5s ease-in-out infinite;
+        }
+
+        .header .subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 0.35em;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 14px;
+            font-weight: 300;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.25);
+            }
+        }
+
+        /* ============ 卡片网格 ============ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 900px;
+            width: 100%;
+            perspective: 1200px;
+            opacity: 0;
+            animation: fadeInUp 1.2s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* ============ 单张卡片 ============ */
+        .card-wrapper {
+            perspective: 800px;
+        }
+
+        .card {
+            position: relative;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px 20px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-style: preserve-3d;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 21px;
+            padding: 1px;
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.12) 0%,
+                    rgba(255, 255, 255, 0.03) 40%,
+                    rgba(255, 255, 255, 0.08) 70%,
+                    rgba(255, 255, 255, 0.01) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center,
+                    rgba(255, 255, 255, 0.03) 0%,
+                    transparent 60%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.03);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                0 0 80px rgba(120, 120, 180, 0.15),
+                0 0 20px rgba(200, 200, 240, 0.08);
+        }
+
+        .card:active {
+            transform: scale(0.97);
+            transition: transform 0.15s;
+        }
+
+        /* 卡片光晕颜色变体 */
+        .card.card-chaos:hover {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(255, 107, 107, 0.2), 0 0 20px rgba(255, 107, 107, 0.1);
+        }
+        .card.card-organism:hover {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(78, 205, 196, 0.2), 0 0 20px rgba(78, 205, 196, 0.1);
+        }
+        .card.card-abyss:hover {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(255, 230, 109, 0.2), 0 0 20px rgba(255, 230, 109, 0.1);
+        }
+        .card.card-ephemeral:hover {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(162, 155, 254, 0.2), 0 0 20px rgba(162, 155, 254, 0.1);
+        }
+
+        /* ============ 卡片内部微缩 Canvas ============ */
+        .card-preview {
+            width: 100%;
+            height: 160px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .card-preview canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ============ 卡片文字 ============ */
+        .card-label {
+            position: relative;
+            z-index: 1;
+            font-size: 0.65rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 6px;
+            font-weight: 400;
+        }
+
+        .card-title {
+            position: relative;
+            z-index: 1;
+            font-size: 1.35rem;
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            color: #e0e0ec;
+            margin-bottom: 4px;
+        }
+
+        .card-desc {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.04em;
+            font-weight: 300;
+        }
+
+        /* ============ 底部提示 ============ */
+        .footer-hint {
+            margin-top: 50px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 1.2s 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        .footer-hint span {
+            display: inline-block;
+            animation: breathe-hint 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe-hint {
+            0%,
+            100% {
+                opacity: 0.25;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 700px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                max-width: 400px;
+            }
+            .card-preview {
+                height: 130px;
+            }
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            .header {
+                margin-bottom: 30px;
+            }
+            .card:hover {
+                transform: translateY(-4px) scale(1.015);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .cards-grid {
+                gap: 14px;
+            }
+            .card {
+                padding: 16px 14px 14px;
+                border-radius: 16px;
+            }
+            .card-preview {
+                height: 110px;
+                border-radius: 8px;
+            }
+            .card-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 星场背景 -->
+    <canvas id="starfield"></canvas>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 标题 -->
+        <div class="header">
+            <div class="supertitle">Digital Artifact Collection</div>
+            <h1>阈限空间<span class="dot">·</span></h1>
+            <div class="subtitle">LIMINAL &nbsp; SPACE</div>
+        </div>
+
+        <!-- 卡片网格 -->
+        <div class="cards-grid" id="cardsGrid">
+            <!-- 卡片1：混沌吸引子 -->
+            <div class="card-wrapper">
+                <a href="chaos.html" class="card card-chaos" data-index="0">
+                    <div class="card-preview">
+                        <canvas id="previewChaos" width="400" height="160"></canvas>
+                    </div>
+                    <div class="card-label">01 / 维度</div>
+                    <div class="card-title">混沌吸引子</div>
+                    <div class="card-desc">洛伦兹蝴蝶 · 确定性混沌</div>
+                </a>
+            </div>
+
+            <!-- 卡片2：有机呼吸体 -->
+            <div class="card-wrapper">
+                <a href="organism.html" class="card card-organism" data-index="1">
+                    <div class="card-preview">
+                        <canvas id="previewOrganism" width="400" height="160"></canvas>
+                    </div>
+                    <div class="card-label">02 / 维度</div>
+                    <div class="card-title">有机呼吸体</div>
+                    <div class="card-desc">生命模拟 · 同步节律</div>
+                </a>
+            </div>
+
+            <!-- 卡片3：递归深渊 -->
+            <div class="card-wrapper">
+                <a href="recursion.html" class="card card-abyss" data-index="2">
+                    <div class="card-preview">
+                        <canvas id="previewRecursion" width="400" height="160"></canvas>
+                    </div>
+                    <div class="card-label">03 / 维度</div>
+                    <div class="card-title">递归深渊</div>
+                    <div class="card-desc">无限分形 · 万花筒</div>
+                </a>
+            </div>
+
+            <!-- 卡片4：墨·蒸发 -->
+            <div class="card-wrapper">
+                <a href="evaporate.html" class="card card-ephemeral" data-index="3">
+                    <div class="card-preview">
+                        <canvas id="previewEvaporate" width="400" height="160"></canvas>
+                    </div>
+                    <div class="card-label">04 / 维度</div>
+                    <div class="card-title">墨 · 蒸发</div>
+                    <div class="card-desc">东方美学 · 符号无常</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 底部提示 -->
+        <div class="footer-hint">
+            <span>◇ &nbsp; 选择一扇门进入 &nbsp; ◇</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== 星场背景 ====================
+            const starCanvas = document.getElementById('starfield');
+            const starCtx = starCanvas.getContext('2d');
+            let stars = [];
+            let nebulaParticles = [];
+            const STAR_COUNT = 280;
+            const NEBULA_COUNT = 40;
+
+            function resizeStarCanvas() {
+                starCanvas.width = window.innerWidth;
+                starCanvas.height = window.innerHeight;
+            }
+            resizeStarCanvas();
+            window.addEventListener('resize', resizeStarCanvas);
+
+            // 初始化星星
+            function createStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * starCanvas.width,
+                        y: Math.random() * starCanvas.height,
+                        r: Math.random() * 1.6 + 0.3,
+                        speed: Math.random() * 0.25 + 0.05,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        twinkleSpeed: Math.random() * 0.015 + 0.005,
+                        twinkleOffset: Math.random() * Math.PI * 2,
+                        layer: Math.floor(Math.random() * 3), // 0近 1中 2远
+                    });
+                }
+            }
+
+            function createNebula() {
+                nebulaParticles = [];
+                for (let i = 0; i < NEBULA_COUNT; i++) {
+                    nebulaParticles.push({
+                        x: Math.random() * starCanvas.width,
+                        y: Math.random() * starCanvas.height,
+                        r: Math.random() * 50 + 20,
+                        opacity: Math.random() * 0.04 + 0.01,
+                        vx: (Math.random() - 0.5) * 0.15,
+                        vy: (Math.random() - 0.5) * 0.15,
+                        hue: Math.random() * 60 + 220, // 蓝-紫范围
+                    });
+                }
+            }
+
+            createStars();
+            createNebula();
+            window.addEventListener('resize', () => {
+                createStars();
+                createNebula();
+            });
+
+            let mouseX = starCanvas.width / 2;
+            let mouseY = starCanvas.height / 2;
+            let targetMouseX = mouseX;
+            let targetMouseY = mouseY;
+
+            document.addEventListener('mousemove', (e) => {
+                targetMouseX = e.clientX;
+                targetMouseY = e.clientY;
+            });
+
+            function drawStarfield(timestamp) {
+                starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+
+                // 平滑鼠标位置
+                mouseX += (targetMouseX - mouseX) * 0.03;
+                mouseY += (targetMouseY - mouseY) * 0.03;
+
+                const parallaxFactorX = (mouseX / starCanvas.width - 0.5) * 0.6;
+                const parallaxFactorY = (mouseY / starCanvas.height - 0.5) * 0.6;
+
+                // 绘制星云粒子
+                for (const np of nebulaParticles) {
+                    np.x += np.vx;
+                    np.y += np.vy;
+                    if (np.x < -60) np.x = starCanvas.width + 60;
+                    if (np.x > starCanvas.width + 60) np.x = -60;
+                    if (np.y < -60) np.y = starCanvas.height + 60;
+                    if (np.y > starCanvas.height + 60) np.y = -60;
+
+                    const drawX = np.x + parallaxFactorX * 15 * (np.r / 50);
+                    const drawY = np.y + parallaxFactorY * 15 * (np.r / 50);
+
+                    const gradient = starCtx.createRadialGradient(drawX, drawY, 0, drawX, drawY, np.r);
+                    gradient.addColorStop(0, `hsla(${np.hue}, 60%, 60%, ${np.opacity * 1.5})`);
+                    gradient.addColorStop(0.5, `hsla(${np.hue}, 50%, 40%, ${np.opacity * 0.6})`);
+                    gradient.addColorStop(1, 'transparent');
+                    starCtx.fillStyle = gradient;
+                    starCtx.beginPath();
+                    starCtx.arc(drawX, drawY, np.r, 0, Math.PI * 2);
+                    starCtx.fill();
+                }
+
+                // 绘制星星
+                for (const star of stars) {
+                    const layerMultiplier = [1, 0.6, 0.3][star.layer];
+                    const drawX = star.x + parallaxFactorX * 30 * layerMultiplier;
+                    const drawY = star.y + parallaxFactorY * 30 * layerMultiplier;
+
+                    // 闪烁
+                    const twinkle = Math.sin(timestamp * star.twinkleSpeed + star.twinkleOffset) * 0.35 + 0.65;
+                    const alpha = star.opacity * twinkle;
+
+                    starCtx.fillStyle = `rgba(220,225,255,${alpha})`;
+                    starCtx.beginPath();
+                    starCtx.arc(drawX, drawY, star.r, 0, Math.PI * 2);
+                    starCtx.fill();
+
+                    // 亮星加辉光
+                    if (star.r > 1.2 && alpha > 0.75) {
+                        starCtx.fillStyle = `rgba(200,210,255,${alpha * 0.25})`;
+                        starCtx.beginPath();
+                        starCtx.arc(drawX, drawY, star.r * 2.5, 0, Math.PI * 2);
+                        starCtx.fill();
+                    }
+                }
+            }
+
+            // ==================== 微缩预览 Canvas ====================
+            // --- 混沌吸引子预览 ---
+            const previewChaosCanvas = document.getElementById('previewChaos');
+            const chaosCtx = previewChaosCanvas.getContext('2d');
+            let chaosPoints = [];
+            const chaosDpr = 2;
+            previewChaosCanvas.width = 400 * chaosDpr;
+            previewChaosCanvas.height = 160 * chaosDpr;
+            chaosCtx.scale(chaosDpr, chaosDpr);
+
+            function initChaosPreview() {
+                chaosPoints = [];
+                let x = Math.random() * 2 - 1;
+                let y = Math.random() * 2 - 1;
+                let z = Math.random() * 2 - 1;
+                const dt = 0.005;
+                const sigma = 10;
+                const rho = 28;
+                const beta = 8 / 3;
+                for (let i = 0; i < 3000; i++) {
+                    const dx = sigma * (y - x) * dt;
+                    const dy = (x * (rho - z) - y) * dt;
+                    const dz = (x * y - beta * z) * dt;
+                    x += dx;
+                    y += dy;
+                    z += dz;
+                    if (i > 500) {
+                        chaosPoints.push({ x, y, z });
+                    }
+                }
+            }
+            initChaosPreview();
+
+            function drawChaosPreview(time) {
+                chaosCtx.fillStyle = 'rgba(0,0,0,0.25)';
+                chaosCtx.fillRect(0, 0, 400, 160);
+                const scaleX = 35;
+                const scaleY = 35;
+                const offsetX = 200;
+                const offsetY = 80;
+                const hueBase = (time * 0.0001) % 360;
+                for (let i = 0; i < chaosPoints.length; i += 4) {
+                    const p = chaosPoints[i];
+                    const sx = p.x * scaleX + offsetX;
+                    const sy = p.y * scaleY + offsetY;
+                    const hue = (hueBase + i * 0.05) % 360;
+                    chaosCtx.fillStyle = `hsla(${hue}, 80%, 60%, 0.7)`;
+                    chaosCtx.beginPath();
+                    chaosCtx.arc(sx, sy, 0.8, 0, Math.PI * 2);
+                    chaosCtx.fill();
+                }
+            }
+
+            // --- 有机呼吸体预览 ---
+            const previewOrganismCanvas = document.getElementById('previewOrganism');
+            const organismCtx = previewOrganismCanvas.getContext('2d');
+            const orgDpr = 2;
+            previewOrganismCanvas.width = 400 * orgDpr;
+            previewOrganismCanvas.height = 160 * orgDpr;
+            organismCtx.scale(orgDpr, orgDpr);
+            const orgParticles = [];
+            for (let i = 0; i < 200; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const radius = Math.random() * 55 + 5;
+                orgParticles.push({ angle, phi, radius, baseRadius: radius, speed: Math.random() * 0.02 + 0.008,
+                    phase: Math.random() * Math.PI * 2 });
+            }
+
+            function drawOrganismPreview(time) {
+                organismCtx.fillStyle = 'rgba(0,0,0,0.3)';
+                organismCtx.fillRect(0, 0, 400, 160);
+                const cx = 200;
+                const cy = 80;
+                const breathe = Math.sin(time * 0.0015) * 0.35 + 0.65;
+                const hueShift = Math.sin(time * 0.0008) * 25;
+                for (const p of orgParticles) {
+                    const r = p.baseRadius * (0.7 + breathe * 0.6);
+                    const px = cx + Math.sin(p.angle + time * p.speed) * Math.cos(p.phi) * r;
+                    const py = cy + Math.cos(p.angle + time * p.speed) * Math.cos(p.phi) * r * 0.55;
+                    const dist = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+                    const hue = 25 + hueShift + (dist / 55) * 20;
+                    organismCtx.fillStyle = `hsla(${hue}, 70%, 55%, 0.8)`;
+                    organismCtx.beginPath();
+                    organismCtx.arc(px, py, 1.2 + breathe * 0.6, 0, Math.PI * 2);
+                    organismCtx.fill();
+                }
+            }
+
+            // --- 递归深渊预览 ---
+            const previewRecursionCanvas = document.getElementById('previewRecursion');
+            const recursionCtx = previewRecursionCanvas.getContext('2d');
+            const recDpr = 2;
+            previewRecursionCanvas.width = 400 * recDpr;
+            previewRecursionCanvas.height = 160 * recDpr;
+            recursionCtx.scale(recDpr, recDpr);
+
+            function drawRecursionPreview(time) {
+                recursionCtx.fillStyle = 'rgba(0,0,0,0.5)';
+                recursionCtx.fillRect(0, 0, 400, 160);
+                const cx = 200;
+                const cy = 80;
+                const angle = time * 0.0006;
+                const hueBase = (time * 0.0003) % 360;
+
+                function drawBranch(x, y, len, a, depth) {
+                    if (depth > 7 || len < 1.5) return;
+                    const endX = x + Math.cos(a) * len;
+                    const endY = y + Math.sin(a) * len;
+                    const hue = (hueBase + depth * 18) % 360;
+                    const alpha = 0.85 - depth * 0.09;
+                    recursionCtx.strokeStyle = `hsla(${hue}, 70%, 55%, ${alpha})`;
+                    recursionCtx.lineWidth = len * 0.12;
+                    recursionCtx.beginPath();
+                    recursionCtx.moveTo(x, y);
+                    recursionCtx.lineTo(endX, endY);
+                    recursionCtx.stroke();
+                    const spread = 0.55 + Math.sin(time * 0.002 + depth) * 0.2;
+                    drawBranch(endX, endY, len * 0.7, a + spread, depth + 1);
+                    drawBranch(endX, endY, len * 0.7, a - spread, depth + 1);
+                }
+                drawBranch(cx, cy + 40, 50, -Math.PI / 2 + Math.sin(angle) * 0.35, 0);
+                drawBranch(cx, cy + 40, 50, -Math.PI / 2 + Math.cos(angle) * 0.35, 1);
+            }
+
+            // --- 墨·蒸发预览 ---
+            const previewEvaporateCanvas = document.getElementById('previewEvaporate');
+            const evaporateCtx = previewEvaporateCanvas.getContext('2d');
+            const evDpr = 2;
+            previewEvaporateCanvas.width = 400 * evDpr;
+            previewEvaporateCanvas.height = 160 * evDpr;
+            evaporateCtx.scale(evDpr, evDpr);
+            const inkParticles = [];
+            const symbols = ['⼀', '⼆', '⼈', '⼊', '⼋', '∑', '∫', '∂', '∆', '∞', '≈', '≠', '≤', '≥', '√', '∛', '∴', '∵'];
+
+            function spawnInkParticle() {
+                return {
+                    x: Math.random() * 380 + 10,
+                    y: -10,
+                    symbol: symbols[Math.floor(Math.random() * symbols.length)],
+                    vy: Math.random() * 0.5 + 0.3,
+                    opacity: 1,
+                    life: 1,
+                    decay: Math.random() * 0.004 + 0.003,
+                    size: Math.random() * 10 + 14,
+                    landed: false,
+                    landY: Math.random() * 40 + 100,
+                    spreadRadius: 0,
+                };
+            }
+            for (let i = 0; i < 30; i++) {
+                const p = spawnInkParticle();
+                p.y = Math.random() * 160;
+                p.life = Math.random();
+                p.landed = p.y > p.landY;
+                if (p.landed) p.spreadRadius = Math.random() * 15;
+                inkParticles.push(p);
+            }
+
+            function drawEvaporatePreview(time) {
+                evaporateCtx.fillStyle = 'rgba(20,18,15,0.35)';
+                evaporateCtx.fillRect(0, 0, 400, 160);
+                // 水墨污渍
+                for (const p of inkParticles) {
+                    if (p.landed && p.spreadRadius > 0.5 && p.life > 0.05) {
+                        const gradient = evaporateCtx.createRadialGradient(p.x, p.landY, 0, p.x, p.landY, p.spreadRadius);
+                        gradient.addColorStop(0, `rgba(40,35,30,${p.life * 0.35})`);
+                        gradient.addColorStop(0.6, `rgba(50,40,35,${p.life * 0.15})`);
+                        gradient.addColorStop(1, 'transparent');
+                        evaporateCtx.fillStyle = gradient;
+                        evaporateCtx.beginPath();
+                        evaporateCtx.arc(p.x, p.landY, p.spreadRadius, 0, Math.PI * 2);
+                        evaporateCtx.fill();
+                    }
+                }
+                // 符号
+                for (const p of inkParticles) {
+                    if (p.life <= 0.02) continue;
+                    if (!p.landed) {
+                        evaporateCtx.fillStyle = `rgba(220,210,190,${p.opacity * p.life})`;
+                        evaporateCtx.font = `${p.size}px "KaiTi","STKaiti","SimSun",serif`;
+                        evaporateCtx.fillText(p.symbol, p.x, p.y);
+                    } else if (p.spreadRadius < 20 && p.life > 0.04) {
+                        evaporateCtx.fillStyle = `rgba(180,160,140,${p.life * 0.6})`;
+                        evaporateCtx.font = `${p.size * 0.7}px "KaiTi","STKaiti","SimSun",serif`;
+                        evaporateCtx.fillText(p.symbol, p.x + p.spreadRadius * 0.3, p.landY - p.spreadRadius * 0.2);
+                    }
+                }
+                // 更新
+                for (const p of inkParticles) {
+                    if (!p.landed) {
+                        p.y += p.vy;
+                        if (p.y >= p.landY) {
+                            p.landed = true;
+                            p.spreadRadius = 0;
+                        }
+                    } else {
+                        p.spreadRadius += 0.08;
+                        p.life -= p.decay * 1.5;
+                        if (p.life <= 0.02 && p.spreadRadius > 10) {
+                            Object.assign(p, spawnInkParticle());
+                            p.y = -10;
+                            p.life = 1;
+                            p.landed = false;
+                            p.spreadRadius = 0;
+                        }
+                    }
+                    if (!p.landed) p.life -= p.decay * 0.3;
+                }
+                // 补充粒子
+                if (inkParticles.filter(p => !p.landed).length < 8 && Math.random() < 0.3) {
+                    inkParticles.push(spawnInkParticle());
+                    if (inkParticles.length > 55) inkParticles.shift();
+                }
+            }
+
+            // ==================== 卡片3D视差 ====================
+            const cardsGrid = document.getElementById('cardsGrid');
+            const cards = document.querySelectorAll('.card');
+
+            document.addEventListener('mousemove', (e) => {
+                const mx = e.clientX / window.innerWidth - 0.5;
+                const my = e.clientY / window.innerHeight - 0.5;
+
+                cardsGrid.style.transform = `
+                    rotateY(${mx * 4}deg)
+                    rotateX(${-my * 4}deg)
+                    translateZ(0)
+                `;
+
+                cards.forEach((card, i) => {
+                    const offsetX = (i % 2 === 0 ? -1 : 1) * mx * 10;
+                    const offsetY = (i < 2 ? -1 : 1) * my * 10;
+                    card.style.transform = `
+                        translate(${offsetX}px, ${offsetY}px)
+                        ${card.matches(':hover') ? 'translateY(-8px) scale(1.03)' : ''}
+                    `;
+                });
+            });
+
+            // 鼠标离开时恢复
+            document.addEventListener('mouseleave', () => {
+                cardsGrid.style.transform = 'rotateY(0deg) rotateX(0deg) translateZ(0)';
+                cards.forEach(card => {
+                    if (!card.matches(':hover')) {
+                        card.style.transform = '';
+                    }
+                });
+            });
+
+            // ==================== 动画循环 ====================
+            function animate(timestamp) {
+                drawStarfield(timestamp);
+                drawChaosPreview(timestamp);
+                drawOrganismPreview(timestamp);
+                drawRecursionPreview(timestamp);
+                drawEvaporatePreview(timestamp);
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+        })();
+    </script>
+</body>
+</html>

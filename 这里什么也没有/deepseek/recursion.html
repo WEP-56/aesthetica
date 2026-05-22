@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>递归深渊 · 无限分形</title>
+    <style>
+        :root {
+            --bg: #020207;
+            --accent: #ffe66d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            cursor: default;
+            -webkit-user-select: none;
+            user-select: none;
+            position: relative;
+        }
+
+        #recursionCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* 覆盖层 */
+        .overlay {
+            position: fixed;
+            z-index: 10;
+            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px;
+        }
+
+        .top-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 200;
+            letter-spacing: 0.12em;
+            color: #e8e8f0;
+            text-shadow: 0 0 40px rgba(255, 230, 109, 0.5);
+            line-height: 1.2;
+        }
+
+        .page-title .sub {
+            display: block;
+            font-size: 0.65rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 6px;
+        }
+
+        .back-link {
+            pointer-events: auto;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            transition: all 0.4s;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(20, 20, 35, 0.3);
+        }
+
+        .back-link:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .bottom-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+        }
+
+        .instruction {
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .depth-indicator {
+            font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 600px) {
+            .overlay {
+                padding: 20px;
+            }
+            .page-title {
+                font-size: 1.3rem;
+            }
+            .back-link {
+                font-size: 0.7rem;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="recursionCanvas"></canvas>
+
+    <div class="overlay">
+        <div class="top-info">
+            <div class="page-title">
+                递归深渊
+                <span class="sub">Infinite Fractal · 万花筒</span>
+            </div>
+            <a href="index.html" class="back-link">← 返回画廊</a>
+        </div>
+        <div class="bottom-info">
+            <div class="instruction">
+                <span>◈</span> 注视中心 · 无限坠落
+            </div>
+            <div class="depth-indicator" id="depthText">深度 ∞</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('recursionCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let W, H, centerX, centerY;
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+                centerX = W / 2;
+                centerY = H / 2;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            // ==================== 分形参数 ====================
+            const MAX_DEPTH = 11; // 最大递归深度
+            const BRANCH_ANGLE = 0.58; // 分支角度（弧度）
+            const LENGTH_RATIO = 0.72; // 子枝长度比例
+
+            // 动画参数
+            let globalRotation = 0; // 整体旋转角度
+            let zoomFactor = 1.0; // 缩放
+            let time = 0;
+
+            // ==================== 鼠标交互 ====================
+            let mouseX = centerX;
+            let mouseY = centerY;
+            let targetMouseX = centerX;
+            let targetMouseY = centerY;
+
+            window.addEventListener('mousemove', (e) => {
+                targetMouseX = e.clientX;
+                targetMouseY = e.clientY;
+            });
+            window.addEventListener('touchmove', (e) => {
+                targetMouseX = e.touches[0].clientX;
+                targetMouseY = e.touches[0].clientY;
+            }, { passive: true });
+
+            // ==================== 绘制递归树 ====================
+            function drawBranch(x, y, length, angle, depth, hueShift) {
+                if (depth > MAX_DEPTH || length < 0.4) return;
+
+                // 计算终点
+                const endX = x + Math.cos(angle) * length;
+                const endY = y + Math.sin(angle) * length;
+
+                // 颜色：深度越深，色相越偏移，形成彩虹循环
+                const hue = (hueShift + depth * 18 + time * 0.015) % 360;
+                const saturation = 85 - depth * 3;
+                const lightness = 45 + depth * 4;
+                const alpha = 0.85 - depth * 0.06;
+
+                // 线宽随深度递减
+                const lineWidth = Math.max(0.4, length * 0.1);
+
+                ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+                ctx.lineWidth = lineWidth;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                // 在节点处绘制微小的光点
+                if (depth > 3 && length > 1.2) {
+                    ctx.fillStyle = `hsla(${hue}, 90%, 70%, ${alpha * 0.7})`;
+                    ctx.beginPath();
+                    ctx.arc(endX, endY, lineWidth * 1.8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 递归分支
+                const newLength = length * LENGTH_RATIO;
+                const angleOffset = BRANCH_ANGLE + Math.sin(time * 0.002 + depth * 0.5) * 0.1; // 微动
+
+                drawBranch(endX, endY, newLength, angle + angleOffset, depth + 1, hueShift);
+                drawBranch(endX, endY, newLength, angle - angleOffset, depth + 1, hueShift);
+            }
+
+            // ==================== 绘制多个树形成万花筒效果 ====================
+            function drawKaleidoscope(rotation, zoom, hueShift) {
+                const branches = 6; // 6个方向的树，形成对称
+                const trunkLength = 110 * zoom;
+
+                for (let i = 0; i < branches; i++) {
+                    const baseAngle = (i / branches) * Math.PI * 2 + rotation;
+                    // 树干从中心点向外延伸
+                    const startX = centerX;
+                    const startY = centerY;
+                    drawBranch(startX, startY, trunkLength, baseAngle, 1, hueShift + i * 30);
+                }
+            }
+
+            // ==================== 背景粒子（细微的光点环绕） ====================
+            const bgParticles = [];
+            const BG_COUNT = 60;
+            for (let i = 0; i < BG_COUNT; i++) {
+                bgParticles.push({
+                    angle: Math.random() * Math.PI * 2,
+                    radius: Math.random() * 300 + 50,
+                    speed: (Math.random() - 0.5) * 0.002,
+                    size: Math.random() * 1.5 + 0.5,
+                    opacity: Math.random() * 0.4 + 0.1,
+                });
+            }
+
+            function drawBgParticles(time) {
+                for (const p of bgParticles) {
+                    p.angle += p.speed;
+                    const x = centerX + Math.cos(p.angle) * p.radius;
+                    const y = centerY + Math.sin(p.angle) * p.radius * 0.6;
+                    const hue = (time * 0.03 + p.angle * 30) % 360;
+                    ctx.fillStyle = `hsla(${hue}, 70%, 60%, ${p.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // ==================== 动画循环 ====================
+            function animate(timestamp) {
+                time = timestamp;
+                // 平滑鼠标
+                mouseX += (targetMouseX - mouseX) * 0.04;
+                mouseY += (targetMouseY - mouseY) * 0.04;
+
+                // 整体旋转速度受鼠标位置影响
+                const mouseAngle = Math.atan2(mouseY - centerY, mouseX - centerX);
+                const mouseDist = Math.sqrt((mouseX - centerX) ** 2 + (mouseY - centerY) ** 2);
+                const targetRotation = mouseAngle + time * 0.0004;
+                const rotationSpeed = 0.02 + (mouseDist / 400) * 0.03;
+                globalRotation += (targetRotation - globalRotation) * rotationSpeed;
+
+                // 缩放随呼吸感变化
+                const breathe = Math.sin(time * 0.0008) * 0.08 + 1.0;
+                zoomFactor += (breathe - zoomFactor) * 0.03;
+
+                // 半透明背景，产生拖影
+                ctx.fillStyle = 'rgba(2, 2, 7, 0.25)';
+                ctx.fillRect(0, 0, W, H);
+
+                // 绘制背景粒子
+                drawBgParticles(time);
+
+                // 色相基础偏移随时间缓慢变化
+                const hueShift = time * 0.02;
+
+                // 绘制万花筒分形树
+                drawKaleidoscope(globalRotation, zoomFactor, hueShift);
+
+                // 更新深度显示
+                const depthEl = document.getElementById('depthText');
+                if (depthEl) {
+                    const cycle = Math.floor((time * 0.0002) % 100);
+                    depthEl.textContent = `层级 ${MAX_DEPTH} · 循环 ${cycle}`;
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+
+            console.log('%c递归深渊已就绪 %c🌀',
+                'color:#ffe66d;font-size:14px;', 'font-size:20px;');
+        })();
+    </script>
+</body>
+</html>
