@@ -122,10 +122,10 @@ Aesthetica 不比较：
 
 | Model       | Theme | Status |
 | ----------- | ----- | ------ |
-| Gemini      | Cyber Organism      | ✅ |
-| Claude      | Precision Organism   | ✅ |
-| GPT         | Digital Rites       | ✅ |
-| DeepSeek    | Algorithmic Zen     | ✅ |
+| Gemini      | Digital Solitude    | ✅ |
+| Claude      | Quiet Things         | ✅ |
+| GPT         | Archive             | ✅ |
+| DeepSeek    | Left Behind         | ✅ |
 | MiniMax     | Tidal Ebb           | ✅ |
 | GLM         | Tidal Reverie       | ✅ |
 | Kimi        | Attenuated Presence | ✅ |

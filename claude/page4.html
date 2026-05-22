@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>窗上的水痕 — 事物的重量</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #e8eef2;
+      color: #1a1a1a;
+      font-family: "Georgia", "宋体", serif;
+      min-height: 100vh;
+      padding: 14vh 12vw 10vh 12vw;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 背景水痕装饰 */
+    .water-bg {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 50vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.18;
+    }
+
+    .water-streak {
+      position: absolute;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(160, 185, 210, 0.6) 20%,
+        rgba(160, 185, 210, 0.3) 80%,
+        transparent
+      );
+      border-radius: 50%;
+      transform-origin: top center;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-num {
+      font-size: 0.7rem;
+      color: #aabbc8;
+      letter-spacing: 0.15em;
+      margin-bottom: 8vh;
+    }
+
+    .object-name {
+      font-size: clamp(1.4rem, 4vw, 2.6rem);
+      font-weight: normal;
+      letter-spacing: 0.05em;
+      margin-bottom: 6vh;
+      line-height: 1.3;
+      color: #2a3a45;
+    }
+
+    .window-frame {
+      width: clamp(120px, 22vw, 200px);
+      height: clamp(160px, 28vw, 260px);
+      border: 2px solid #b0c4d4;
+      margin: 3vh 0 5vh 0;
+      position: relative;
+      background: rgba(255,255,255,0.25);
+    }
+
+    .window-cross-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #b0c4d4;
+    }
+
+    .window-cross-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #b0c4d4;
+    }
+
+    /* SVG水痕路径 */
+    .streak-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .body-text {
+      max-width: 38rem;
+      font-size: clamp(0.88rem, 1.4vw, 1rem);
+      line-height: 2;
+      color: #2a3a45;
+      margin-bottom: 3rem;
+    }
+
+    .body-text p + p {
+      margin-top: 1.5rem;
+    }
+
+    .body-text .light {
+      color: #7a9ab0;
+    }
+
+    .note {
+      font-size: 0.75rem;
+      color: #8aaabb;
+      font-style: italic;
+      margin-top: 4rem;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-bottom {
+      position: fixed;
+      bottom: 2.5rem;
+      right: 4vw;
+      display: flex;
+      gap: 2rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      z-index: 2;
+    }
+
+    .nav-bottom a {
+      text-decoration: none;
+      color: #8aaabb;
+      transition: color 0.2s;
+    }
+
+    .nav-bottom a:hover {
+      color: #2a3a45;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景水痕 -->
+  <div class="water-bg" aria-hidden="true">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 80 0 Q 75 120 82 280 Q 85 380 78 500"
+            stroke="rgba(140,175,210,0.5)" stroke-width="1.5"
+            fill="none" stroke-linecap="round"/>
+      <path d="M 120 30 Q 118 180 122 350 Q 124 440 119 580"
+            stroke="rgba(140,175,210,0.35)" stroke-width="1"
+            fill="none" stroke-linecap="round"/>
+      <path d="M 200 0 Q 196 90 202 200 Q 205 310 198 420"
+            stroke="rgba(140,175,210,0.4)" stroke-width="2"
+            fill="none" stroke-linecap="round"/>
+      <path d="M 260 60 Q 258 200 264 340 Q 266 450 260 600"
+            stroke="rgba(140,175,210,0.25)" stroke-width="1"
+            fill="none" stroke-linecap="round"/>
+      <path d="M 320 10 Q 317 150 323 300 Q 325 400 320 520"
+            stroke="rgba(140,175,210,0.45)" stroke-width="1.5"
+            fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="content">
+    <p class="page-num">四 / 五</p>
+
+    <h1 class="object-name">窗上的水痕</h1>
+
+    <!-- 小窗框图示 -->
+    <div class="window-frame" aria-hidden="true">
+      <div class="window-cross-h"></div>
+      <div class="window-cross-v"></div>
+      <svg class="streak-svg" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 30 5 Q 28 35 31 70 Q 32 95 29 110"
+              stroke="rgba(140,175,210,0.5)" stroke-width="1.2"
+              fill="none" stroke-linecap="round"/>
+        <path d="M 55 0 Q 53 50 57 100 Q 58 130 54 155"
+              stroke="rgba(140,175,210,0.35)" stroke-width="0.8"
+              fill="none" stroke-linecap="round"/>
+        <path d="M 90 10 Q 88 55 92 120"
+              stroke="rgba(140,175,210,0.45)" stroke-width="1.5"
+              fill="none" stroke-linecap="round"/>
+        <path d="M 20 120 Q 18 160 22 200 Q 23 230 20 250"
+              stroke="rgba(140,175,210,0.3)" stroke-width="0.8"
+              fill="none" stroke-linecap="round"/>
+        <path d="M 70 130 Q 68 170 73 220"
+              stroke="rgba(140,175,210,0.4)" stroke-width="1"
+              fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="body-text">
+      <p>
+        雨停了很久了。
+      </p>
+      <p>
+        但窗玻璃上还留着那些路径——
+        <span class="light">每一道都是一滴雨的全部旅程。</span>
+      </p>
+      <p>
+        它从某处开始，
+        顺着玻璃往下，
+        走了弯弯曲曲的路，
+        最后停在某个地方，
+        蒸发了。
+      </p>
+      <p>
+        没有目的地。
+        只是顺着重力，
+        顺着玻璃的纹理，
+        顺着旁边的那滴水的路。
+      </p>
+      <p>
+        每一道水痕都不一样。
+      </p>
+      <p class="light">
+        你没有想过要去记住它们。
+        明天又会下雨。
+        会有新的路径。
+        旧的会干掉，变成白色的矿物质的痕迹，
+        你还是不会注意。
+      </p>
+    </div>
+
+    <p class="note">窗玻璃不在乎你是否看它。</p>
+  </div>
+
+  <nav class="nav-bottom">
+    <a href="page3.html">← 上一件</a>
+    <a href="index.html">目录</a>
+    <a href="page5.html">下一件 →</a>
+  </nav>
+
+</body>
+</html>

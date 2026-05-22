@@ -1,330 +1,271 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPT // Digital Rites</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>退潮档案</title>
   <style>
     :root {
-      --paper: #f4efe6;
-      --ink: #080909;
-      --line: rgba(244, 239, 230, 0.16);
-      --dim: rgba(244, 239, 230, 0.62);
-      --gold: #f3bd63;
-      --cyan: #42e6d2;
-      --rose: #ff5d8f;
-      --violet: #9d7cff;
+      --paper: #e7e1d2;
+      --ink: #20201c;
+      --faint: #787263;
+      --line: rgba(32, 32, 28, .24);
+      --seal: #8f2f24;
+      --blue: #253f48;
+      --green: #596a50;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    html, body {
-      margin: 0;
+    html {
       min-height: 100%;
-      background: var(--ink);
-      color: var(--paper);
-      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
-      overflow-x: hidden;
+      background: #171814;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      background:
+        linear-gradient(90deg, rgba(32, 32, 28, .05) 1px, transparent 1px) 0 0 / 64px 64px,
+        linear-gradient(rgba(32, 32, 28, .045) 1px, transparent 1px) 0 0 / 64px 64px,
+        radial-gradient(circle at 18% 12%, rgba(143, 47, 36, .12), transparent 28%),
+        var(--paper);
+      letter-spacing: 0;
     }
 
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(circle at 12% 18%, rgba(66, 230, 210, 0.15), transparent 28%),
-        radial-gradient(circle at 82% 10%, rgba(255, 93, 143, 0.13), transparent 24%),
-        linear-gradient(120deg, rgba(243, 189, 99, 0.08), transparent 35%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 76px);
       pointer-events: none;
+      background:
+        linear-gradient(180deg, transparent 0 33%, rgba(37, 63, 72, .09) 33.2%, transparent 33.9%),
+        repeating-linear-gradient(7deg, rgba(32, 32, 28, .03) 0 1px, transparent 1px 6px);
+      mix-blend-mode: multiply;
     }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
-    main {
-      position: relative;
-      z-index: 1;
+    .shell {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 30px;
       min-height: 100vh;
-      padding: clamp(24px, 5vw, 72px);
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 48px;
+      grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr);
+      gap: 26px;
     }
 
-    header {
+    .ledger {
+      border-right: 1px solid var(--line);
+      padding: 12px 26px 0 0;
+      position: relative;
+    }
+
+    .ledger::after {
+      content: "37cm";
+      position: absolute;
+      top: 31.6vh;
+      right: -14px;
+      width: 44px;
+      height: 44px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 28px;
-      align-items: start;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 28px;
-    }
-
-    .kicker, .meta, .intent, .number {
-      font-family: "Consolas", "SFMono-Regular", monospace;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .kicker {
-      color: var(--cyan);
+      place-items: center;
+      border: 1px solid rgba(143, 47, 36, .55);
+      border-radius: 50%;
+      color: var(--seal);
       font-size: 12px;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(58px, 12vw, 168px);
-      line-height: 0.82;
-      font-weight: 760;
-      letter-spacing: 0;
-      max-width: 980px;
-    }
-
-    h1 span {
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(244, 239, 230, 0.72);
+      transform: rotate(-11deg);
     }
 
     .meta {
-      text-align: right;
-      color: var(--dim);
-      font-size: 11px;
-      line-height: 2;
-      white-space: nowrap;
-    }
-
-    .intro {
-      max-width: 760px;
-      align-self: center;
-      margin: 0;
-      color: rgba(244, 239, 230, 0.78);
-      font-size: clamp(18px, 2.2vw, 28px);
-      line-height: 1.55;
-    }
-
-    .works {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1px;
-      background: var(--line);
-      border: 1px solid var(--line);
-    }
-
-    .work {
-      min-height: 330px;
-      padding: 28px;
-      background: rgba(8, 9, 9, 0.78);
-      color: inherit;
-      text-decoration: none;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-    }
-
-    .work::before {
-      content: "";
-      position: absolute;
-      inset: auto -20% -35% -20%;
-      height: 70%;
-      background: radial-gradient(circle at 50% 0, var(--accent), transparent 68%);
-      opacity: 0.18;
-      transform: translateY(28px);
-      transition: transform 0.45s ease, opacity 0.45s ease;
-      z-index: -1;
-    }
-
-    .work:hover::before {
-      opacity: 0.34;
-      transform: translateY(0);
-    }
-
-    .work:nth-child(1) { --accent: var(--gold); }
-    .work:nth-child(2) { --accent: var(--cyan); }
-    .work:nth-child(3) { --accent: var(--rose); }
-
-    .number {
-      color: var(--accent);
-      font-size: 12px;
-    }
-
-    .work h2 {
-      margin: 54px 0 18px;
-      font-size: clamp(30px, 4vw, 56px);
-      line-height: 0.98;
-      letter-spacing: 0;
-      font-weight: 700;
-    }
-
-    .intent {
-      color: var(--dim);
-      font-size: 11px;
-      line-height: 1.9;
-      text-transform: none;
-      letter-spacing: 0.08em;
-    }
-
-    .open {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      color: rgba(244, 239, 230, 0.84);
-      font-size: 13px;
-      border-top: 1px solid var(--line);
-      padding-top: 20px;
+      gap: 12px;
+      color: var(--faint);
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
     }
 
-    .open b {
+    h1 {
+      margin: 74px 0 12px;
+      font-size: clamp(44px, 8vw, 104px);
+      line-height: .92;
+      font-weight: 400;
+    }
+
+    .subtitle {
+      max-width: 18rem;
+      margin: 0;
+      color: var(--blue);
+      font-size: 17px;
+      line-height: 1.9;
+    }
+
+    .note {
+      margin-top: 28vh;
+      color: var(--faint);
+      font-size: 13px;
+      line-height: 1.8;
+      max-width: 20rem;
+    }
+
+    .archive {
+      align-self: center;
+      padding: 34px 0 14px;
+    }
+
+    .rule {
+      height: 1px;
+      background: var(--line);
+      margin-bottom: 20px;
+    }
+
+    .entry {
+      min-height: 112px;
+      display: grid;
+      grid-template-columns: 86px 1fr 46px;
+      align-items: center;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+      transition: background .25s ease, transform .25s ease;
+    }
+
+    .entry:hover {
+      background: rgba(255, 255, 255, .16);
+      transform: translateX(6px);
+    }
+
+    .entry:focus-visible {
+      outline: 2px solid var(--seal);
+      outline-offset: 6px;
+    }
+
+    .num {
+      color: var(--faint);
+      font: 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .entry strong {
+      display: block;
+      font-size: clamp(24px, 4vw, 43px);
+      line-height: 1.1;
+      font-weight: 400;
+    }
+
+    .entry span {
+      display: block;
+      margin-top: 8px;
+      color: var(--green);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .arrow {
+      justify-self: end;
       width: 34px;
       height: 34px;
-      border: 1px solid currentColor;
+      border: 1px solid var(--line);
       display: grid;
       place-items: center;
-      border-radius: 50%;
-      font-weight: 400;
-      transition: transform 0.35s ease;
+      font: 16px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: var(--blue);
     }
 
-    .work:hover .open b { transform: rotate(-35deg) scale(1.08); }
+    .footerline {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--faint);
+      font: 12px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
 
-    @media (max-width: 860px) {
-      header { grid-template-columns: 1fr; }
-      .meta { text-align: left; white-space: normal; }
-      .works { grid-template-columns: 1fr; }
-      .work { min-height: 260px; }
+    @media (max-width: 760px) {
+      .shell {
+        display: block;
+        padding-top: 20px;
+      }
+
+      .ledger {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 0 0 28px;
+      }
+
+      .ledger::after {
+        top: auto;
+        bottom: 24px;
+        right: 6px;
+      }
+
+      h1 {
+        margin-top: 48px;
+      }
+
+      .note {
+        margin-top: 44px;
+      }
+
+      .entry {
+        grid-template-columns: 54px 1fr 36px;
+        min-height: 96px;
+        gap: 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="field"></canvas>
-  <main>
-    <header>
-      <div>
-        <div class="kicker">GPT PERSONAL SHOWCASE / NO FRAMEWORKS</div>
-        <h1>Digital<br><span>Rites</span></h1>
-      </div>
+  <main class="shell">
+    <section class="ledger" aria-labelledby="title">
       <div class="meta">
-        E:\三模型前端自由发挥\gpt<br>
-        pure html / css / canvas<br>
-        three interactive installations
+        <span>archive no. 04</span>
+        <span>after tide</span>
       </div>
-    </header>
+      <h1 id="title">退潮<br>档案</h1>
+      <p class="subtitle">一份没有申请编号的材料。水退下去以后，剩下的东西开始替人说话。</p>
+      <p class="note">请不要寻找完整事件。这里保存的只有高度、物件、句子和值班人没有删干净的犹豫。</p>
+    </section>
 
-    <p class="intro">
-      我把这组页面当成三个可触摸的数字装置：不是炫耀素材库，而是用浏览器最基础的能力做出“它好像在思考”的瞬间。
-    </p>
-
-    <nav class="works" aria-label="GPT 作品导航">
-      <a class="work" href="gravity-calligraphy.html">
-        <span class="number">RITE 01</span>
-        <h2>引力<br>书法</h2>
-        <p class="intent">创作意图：让粒子像墨一样服从手势，随机噪声最终收束成有笔锋、有呼吸的汉字结构。</p>
-        <span class="open">进入作品 <b>↗</b></span>
+    <section class="archive" aria-label="档案目录">
+      <div class="rule"></div>
+      <a class="entry" href="page1.html">
+        <span class="num">01</span>
+        <span><strong>潮线</strong><span>墙面留下的水位，比证词更稳定。</span></span>
+        <span class="arrow">→</span>
       </a>
-      <a class="work" href="signal-city.html">
-        <span class="number">RITE 02</span>
-        <h2>声纹<br>城市</h2>
-        <p class="intent">创作意图：把不存在的声音翻译成城市剖面，让频谱、道路、窗口和光流一起成为一段可驾驶的夜景。</p>
-        <span class="open">进入作品 <b>↗</b></span>
+      <a class="entry" href="page2.html">
+        <span class="num">02</span>
+        <span><strong>失物</strong><span>所有物件都在等待一个迟到的主人。</span></span>
+        <span class="arrow">→</span>
       </a>
-      <a class="work" href="time-origami.html">
-        <span class="number">RITE 03</span>
-        <h2>时间<br>折纸</h2>
-        <p class="intent">创作意图：把时间做成可拖拽的薄片，折叠时是雕塑，展开时是一次空间叙事。</p>
-        <span class="open">进入作品 <b>↗</b></span>
+      <a class="entry" href="page3.html">
+        <span class="num">03</span>
+        <span><strong>未寄出</strong><span>短信被保存，发送键被推迟。</span></span>
+        <span class="arrow">→</span>
       </a>
-    </nav>
+      <a class="entry" href="page4.html">
+        <span class="num">04</span>
+        <span><strong>值班记录</strong><span>有人在夜里把异常事项写得很轻。</span></span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="entry" href="page5.html">
+        <span class="num">05</span>
+        <span><strong>出口</strong><span>离开也是档案的一部分。</span></span>
+        <span class="arrow">→</span>
+      </a>
+      <div class="footerline">
+        <span>opened manually</span>
+        <span>do not restore order</span>
+      </div>
+    </section>
   </main>
-
-  <script>
-    const canvas = document.getElementById("field");
-    const ctx = canvas.getContext("2d");
-    const pointer = { x: 0, y: 0, active: false };
-    const nodes = [];
-    let tick = 0;
-
-    function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.floor(innerWidth * dpr);
-      canvas.height = Math.floor(innerHeight * dpr);
-      canvas.style.width = innerWidth + "px";
-      canvas.style.height = innerHeight + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      nodes.length = 0;
-      const count = Math.floor(Math.min(130, Math.max(64, innerWidth / 10)));
-      for (let i = 0; i < count; i++) {
-        nodes.push({
-          x: Math.random() * innerWidth,
-          y: Math.random() * innerHeight,
-          r: 0.8 + Math.random() * 2.2,
-          a: Math.random() * Math.PI * 2,
-          s: 0.25 + Math.random() * 0.55
-        });
-      }
-    }
-
-    function draw() {
-      tick += 0.008;
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
-      ctx.lineWidth = 1;
-
-      for (const n of nodes) {
-        n.a += 0.008 * n.s;
-        n.x = (n.x + Math.cos(n.a + tick * 2) * n.s + innerWidth) % innerWidth;
-        n.y = (n.y + Math.sin(n.a * 0.7 + tick) * n.s + innerHeight) % innerHeight;
-        if (pointer.active) {
-          const dx = pointer.x - n.x;
-          const dy = pointer.y - n.y;
-          const d = Math.hypot(dx, dy) || 1;
-          if (d < 260) {
-            n.x += dx / d * (1 - d / 260) * 1.6;
-            n.y += dy / d * (1 - d / 260) * 1.6;
-          }
-        }
-      }
-
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const a = nodes[i];
-          const b = nodes[j];
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < 130) {
-            ctx.strokeStyle = `rgba(244,239,230,${(1 - d / 130) * 0.18})`;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      for (const n of nodes) {
-        ctx.fillStyle = "rgba(244,239,230,0.55)";
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      requestAnimationFrame(draw);
-    }
-
-    addEventListener("resize", resize);
-    addEventListener("pointermove", (event) => {
-      pointer.x = event.clientX;
-      pointer.y = event.clientY;
-      pointer.active = true;
-    });
-    addEventListener("pointerleave", () => pointer.active = false);
-    resize();
-    draw();
-  </script>
 </body>
 </html>

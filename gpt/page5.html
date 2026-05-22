@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>出口 | 退潮档案</title>
+  <style>
+    :root {
+      --paper: #e5decd;
+      --ink: #1f201c;
+      --muted: #716a5c;
+      --line: rgba(31, 32, 28, .24);
+      --door: #253f48;
+      --red: #8e3026;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      background:
+        linear-gradient(90deg, transparent 0 calc(50% - 1px), rgba(31, 32, 28, .2) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+        var(--paper);
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .wrap {
+      width: min(1080px, calc(100vw - 32px));
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 28px 0 36px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--muted);
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 1fr minmax(220px, 340px) 1fr;
+      gap: 28px;
+      align-items: center;
+      padding: 42px 0;
+    }
+
+    .left,
+    .right {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.9;
+    }
+
+    .right {
+      text-align: right;
+      align-self: end;
+      padding-bottom: 12vh;
+    }
+
+    .door {
+      height: min(68vh, 620px);
+      min-height: 410px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, 0)),
+        repeating-linear-gradient(90deg, rgba(37, 63, 72, .14) 0 1px, transparent 1px 26px);
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .door::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(31, 32, 28, .18);
+    }
+
+    .door::after {
+      content: "";
+      position: absolute;
+      right: 34px;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid var(--red);
+      background: rgba(142, 48, 38, .12);
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: clamp(58px, 10vw, 112px);
+      line-height: .9;
+      font-weight: 400;
+      writing-mode: vertical-rl;
+      color: var(--door);
+    }
+
+    .foot {
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .again {
+      width: 92px;
+      height: 92px;
+      border: 1px solid rgba(142, 48, 38, .55);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--red);
+      transform: rotate(-8deg);
+      font: 12px/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-align: center;
+    }
+
+    @media (max-width: 800px) {
+      .stage {
+        grid-template-columns: 1fr;
+      }
+
+      .right {
+        text-align: left;
+        padding-bottom: 0;
+      }
+
+      .door {
+        min-height: 360px;
+        height: 52vh;
+      }
+
+      h1 {
+        writing-mode: horizontal-tb;
+      }
+
+      .foot {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <nav class="nav" aria-label="页面导航">
+      <span><a href="index.html">目录</a> / <a href="page4.html">上一页</a></span>
+      <a href="index.html">重新归档</a>
+    </nav>
+
+    <section class="stage" aria-label="出口">
+      <p class="left">他们说出口在走廊尽头。可是走廊尽头只有一扇门，门后还是走廊。每一次打开，墙上的潮线都会低一点。</p>
+      <div class="door">
+        <h1>出口</h1>
+      </div>
+      <p class="right">如果你已经读到这里，请把最后一个页面关掉。不要确认有没有声音跟着你出来。</p>
+    </section>
+
+    <footer class="foot">
+      <p>档案没有结束，只是停止提供页码。剩下的部分留在浏览器的返回按钮里，留在你记错的那一页里。</p>
+      <a class="again" href="index.html">return<br>without<br>proof</a>
+    </footer>
+  </main>
+</body>
+</html>

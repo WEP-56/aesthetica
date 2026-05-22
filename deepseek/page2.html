@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>镜子 · 304</title>
+  <style>
+    :root {
+      --tile: #7c8a84;
+      --tile-dark: #4e5853;
+      --grout: #3a3f3c;
+      --fog: rgba(230, 242, 240, 0.88);
+      --mirror-edge: #2a2e2c;
+      --text-color: #1f2724;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: #1c1f1e;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "PingFang SC", "Noto Serif SC", "Songti SC", serif;
+      overflow: hidden;
+      cursor: default;
+      user-select: none;
+    }
+
+    .bathroom-wall {
+      width: min(500px, 88vw);
+      height: min(580px, 85vh);
+      background: repeating-linear-gradient(
+          0deg,
+          var(--tile-dark) 0px,
+          var(--tile-dark) 38px,
+          var(--grout) 38px,
+          var(--grout) 40px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          var(--tile) 0px,
+          var(--tile) 58px,
+          var(--grout) 58px,
+          var(--grout) 60px
+        );
+      border: 12px solid #1a1c1b;
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,0,0,0.6);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 镜子 */
+    .mirror {
+      width: 70%;
+      height: 75%;
+      background: #d6e2dd;
+      border: 8px solid var(--mirror-edge);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.7);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 雾气层 - 逐渐消散 */
+    .fog {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 40%, 
+        rgba(220, 235, 230, 0.9) 0%, 
+        rgba(200, 220, 215, 0.95) 30%, 
+        rgba(180, 200, 195, 0.9) 60%, 
+        rgba(150, 170, 165, 0.7) 100%);
+      backdrop-filter: blur(4px);
+      animation: fadeFog 28s ease-in-out forwards;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes fadeFog {
+      0% { opacity: 1; }
+      65% { opacity: 0.75; }
+      85% { opacity: 0.35; }
+      100% { opacity: 0.08; }
+    }
+
+    /* 镜面上的文字（在雾气之下） */
+    .mirror-text {
+      position: relative;
+      z-index: 1;
+      color: var(--text-color);
+      font-size: clamp(18px, 6vw, 28px);
+      font-weight: 400;
+      letter-spacing: 4px;
+      opacity: 0;
+      animation: revealText 28s ease-in-out forwards;
+      text-align: center;
+      line-height: 1.6;
+      padding: 10px;
+      text-shadow: 0 2px 6px rgba(200, 210, 205, 0.6);
+    }
+
+    @keyframes revealText {
+      0% { opacity: 0; }
+      70% { opacity: 0; }
+      85% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* 返回箭头 */
+    .back-arrow {
+      position: absolute;
+      top: 18px;
+      left: 22px;
+      font-size: 22px;
+      color: #7c8a84;
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+    .back-arrow:hover {
+      opacity: 0.9;
+      color: #b1c2bc;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #7c8a84;
+      font-size: 10px;
+      letter-spacing: 2px;
+      opacity: 0.5;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+<div class="bathroom-wall">
+  <a href="page1.html" class="back-arrow" title="回到房间">←</a>
+
+  <div class="mirror">
+    <div class="fog"></div>
+    <div class="mirror-text">
+      我在这里<br>停留过<br>一个很长的下午
+    </div>
+  </div>
+
+  <div class="hint">等雾气散去</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>失物 | 退潮档案</title>
+  <style>
+    :root {
+      --paper: #e6dfd0;
+      --ink: #1f201c;
+      --muted: #746d5d;
+      --line: rgba(31, 32, 28, .24);
+      --tag: #243f48;
+      --red: #8d3026;
+      --green: #596a50;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      background:
+        radial-gradient(circle at 80% 18%, rgba(89, 106, 80, .14), transparent 30%),
+        linear-gradient(90deg, rgba(31, 32, 28, .045) 1px, transparent 1px) 0 0 / 48px 48px,
+        var(--paper);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 28px 0 36px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 16px;
+      color: var(--muted);
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    h1 {
+      margin: 60px 0 0;
+      font-size: clamp(54px, 10vw, 126px);
+      line-height: .9;
+      font-weight: 400;
+    }
+
+    .summary {
+      max-width: 360px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+      padding-top: 8px;
+    }
+
+    .items {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      margin-top: 38px;
+    }
+
+    .item {
+      min-height: 256px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .02)),
+        var(--paper);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .item::after {
+      content: attr(data-weight);
+      position: absolute;
+      top: 18px;
+      right: 16px;
+      color: var(--muted);
+      font: 11px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .shape {
+      width: 96px;
+      height: 96px;
+      border: 1px solid var(--line);
+      margin-top: 22px;
+      position: relative;
+    }
+
+    .shape::before,
+    .shape::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(36, 63, 72, .45);
+    }
+
+    .shape.key {
+      width: 132px;
+      height: 40px;
+      border-radius: 20px;
+    }
+
+    .shape.key::before {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      left: 4px;
+      top: 2px;
+    }
+
+    .shape.key::after {
+      width: 28px;
+      height: 10px;
+      right: -18px;
+      bottom: 6px;
+      border-left: 0;
+    }
+
+    .shape.card {
+      width: 118px;
+      height: 74px;
+      transform: rotate(-4deg);
+    }
+
+    .shape.card::before {
+      left: 14px;
+      top: 16px;
+      width: 64px;
+      height: 1px;
+    }
+
+    .shape.card::after {
+      left: 14px;
+      top: 33px;
+      width: 42px;
+      height: 1px;
+    }
+
+    .shape.watch {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+    }
+
+    .shape.watch::before {
+      width: 18px;
+      height: 28px;
+      left: 28px;
+      top: -30px;
+    }
+
+    .shape.watch::after {
+      width: 18px;
+      height: 28px;
+      left: 28px;
+      bottom: -30px;
+    }
+
+    .shape.shell {
+      border-radius: 50% 50% 46% 12%;
+      transform: rotate(23deg);
+    }
+
+    .shape.shell::before {
+      inset: 18px;
+      border-radius: inherit;
+    }
+
+    .shape.shell::after {
+      width: 1px;
+      height: 76px;
+      left: 48px;
+      top: 10px;
+    }
+
+    .shape.note {
+      width: 102px;
+      height: 118px;
+      transform: rotate(3deg);
+    }
+
+    .shape.note::before {
+      width: 66px;
+      height: 1px;
+      left: 16px;
+      top: 26px;
+      box-shadow: 0 20px 0 rgba(36, 63, 72, .45), 0 40px 0 rgba(36, 63, 72, .45);
+    }
+
+    .shape.note::after {
+      right: -1px;
+      bottom: -1px;
+      width: 24px;
+      height: 24px;
+      background: rgba(141, 48, 38, .12);
+    }
+
+    .shape.comb {
+      width: 126px;
+      height: 34px;
+    }
+
+    .shape.comb::before {
+      left: 14px;
+      right: 14px;
+      bottom: -28px;
+      height: 28px;
+      border-top: 0;
+      background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(36, 63, 72, .5) 7px 8px);
+    }
+
+    .shape.comb::after {
+      display: none;
+    }
+
+    .item h2 {
+      margin: 20px 0 8px;
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 400;
+    }
+
+    .item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .tag {
+      color: var(--tag);
+      font: 12px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    footer {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--muted);
+      font: 12px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    @media (max-width: 900px) {
+      header {
+        display: block;
+      }
+
+      .summary {
+        margin-top: 18px;
+      }
+
+      .items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .items {
+        grid-template-columns: 1fr;
+      }
+
+      footer {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div>
+        <nav class="nav" aria-label="页面导航">
+          <a href="index.html">目录</a>
+          <a href="page1.html">上一页</a>
+          <a href="page3.html">下一页</a>
+        </nav>
+        <h1>失物</h1>
+      </div>
+      <p class="summary">物件被登记时会短暂地拥有姓名。超过三十天无人认领，姓名撤回，物件恢复为证据。</p>
+    </header>
+
+    <section class="items" aria-label="失物清单">
+      <article class="item" data-weight="18g">
+        <span class="tag">object 021</span>
+        <div class="shape key"></div>
+        <div>
+          <h2>单枚钥匙</h2>
+          <p>钥匙齿口完整，但没有任何门愿意承认它。</p>
+        </div>
+      </article>
+      <article class="item" data-weight="4g">
+        <span class="tag">object 034</span>
+        <div class="shape card"></div>
+        <div>
+          <h2>空白证件</h2>
+          <p>塑封层内侧有水汽，姓名栏比其他地方更白。</p>
+        </div>
+      </article>
+      <article class="item" data-weight="51g">
+        <span class="tag">object 055</span>
+        <div class="shape watch"></div>
+        <div>
+          <h2>停表</h2>
+          <p>指针停在 03:17。晃动时内部有细砂声。</p>
+        </div>
+      </article>
+      <article class="item" data-weight="32g">
+        <span class="tag">object 062</span>
+        <div class="shape shell"></div>
+        <div>
+          <h2>贝壳</h2>
+          <p>不是本地物种。发现地点：电梯按钮下方。</p>
+        </div>
+      </article>
+      <article class="item" data-weight="2g">
+        <span class="tag">object 071</span>
+        <div class="shape note"></div>
+        <div>
+          <h2>半张便笺</h2>
+          <p>可辨认字迹仅剩“不要从正门”。</p>
+        </div>
+      </article>
+      <article class="item" data-weight="13g">
+        <span class="tag">object 089</span>
+        <div class="shape comb"></div>
+        <div>
+          <h2>断齿梳</h2>
+          <p>缺口数量与四楼住户人数一致，未采纳为线索。</p>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <span>unclaimed / dry room b</span>
+      <span>认领窗口已经关闭，但铃仍可按响。</span>
+    </footer>
+  </main>
+</body>
+</html>

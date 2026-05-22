@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>值班记录 | 退潮档案</title>
+  <style>
+    :root {
+      --paper: #e4ddcd;
+      --ink: #20201c;
+      --muted: #70695b;
+      --line: rgba(32, 32, 28, .25);
+      --night: #243e47;
+      --seal: #8e3026;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      background:
+        linear-gradient(90deg, rgba(36, 62, 71, .12) 0 18%, transparent 18%),
+        linear-gradient(rgba(32, 32, 28, .05) 1px, transparent 1px) 0 0 / 100% 46px,
+        var(--paper);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .wrap {
+      width: min(1160px, calc(100vw - 32px));
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 28px 0 40px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 16px;
+      color: var(--muted);
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr 290px;
+      gap: 32px;
+      align-items: end;
+      margin: 50px 0 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(52px, 9vw, 118px);
+      line-height: .92;
+      font-weight: 400;
+    }
+
+    .weather {
+      border: 1px solid var(--line);
+      padding: 16px;
+      min-height: 132px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .weather b {
+      display: block;
+      color: var(--night);
+      font: 32px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .log {
+      border-top: 1px solid var(--line);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 126px 150px 1fr;
+      gap: 22px;
+      border-bottom: 1px solid var(--line);
+      min-height: 112px;
+      align-items: start;
+      padding: 18px 0;
+    }
+
+    .time {
+      color: var(--night);
+      font: 30px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .type {
+      color: var(--seal);
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .row p {
+      margin: 0;
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.7;
+    }
+
+    .quiet {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+      display: block;
+    }
+
+    .closing {
+      margin: 36px 0 0 auto;
+      max-width: 440px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.9;
+      border-left: 1px solid var(--line);
+      padding-left: 22px;
+    }
+
+    @media (max-width: 760px) {
+      header {
+        display: block;
+      }
+
+      .weather {
+        margin-top: 24px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <nav class="nav" aria-label="页面导航">
+      <a href="index.html">目录</a>
+      <a href="page3.html">上一页</a>
+      <a href="page5.html">下一页</a>
+    </nav>
+
+    <header>
+      <h1>值班记录</h1>
+      <section class="weather" aria-label="天气记录">
+        <b>04:00</b>
+        东风，湿度 92%。楼道温度低于室外。监控画面偶发雪花点，未报修。
+      </section>
+    </header>
+
+    <section class="log" aria-label="夜间记录">
+      <article class="row">
+        <span class="time">02:48</span>
+        <span class="type">normal</span>
+        <p>巡查一至三层，未见积水。三楼窗台有盐粒，已擦除。<span class="quiet">擦除后盐粒重新出现，未再次处理。</span></p>
+      </article>
+      <article class="row">
+        <span class="time">03:17</span>
+        <span class="type">pending</span>
+        <p>负一层传来铃声，持续 46 秒。电话线路确认已断开。</p>
+      </article>
+      <article class="row">
+        <span class="time">03:31</span>
+        <span class="type">visitor</span>
+        <p>正门感应灯亮起。门外无人。地垫变湿，水迹方向朝外。</p>
+      </article>
+      <article class="row">
+        <span class="time">03:52</span>
+        <span class="type">omitted</span>
+        <p>此处原有一行记录，被圆珠笔反复涂黑。纸背可辨认“他把名字留下了”。</p>
+      </article>
+      <article class="row">
+        <span class="time">04:09</span>
+        <span class="type">closed</span>
+        <p>交接班。钥匙少一枚，抽屉多一枚贝壳。接班人签名处为空。</p>
+      </article>
+    </section>
+
+    <p class="closing">值班员没有在结尾写“无异常”。这在制度上不合格，但比写下它诚实。</p>
+  </main>
+</body>
+</html>

@@ -3,256 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KINETIC STRING THEORY // ARCHIVE 01</title>
+    <title>房间01：光影的延迟</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { 
-            width: 100%; height: 100%; overflow: hidden; 
-            background: #000; color: #fff;
-            font-family: 'Courier New', Courier, monospace;
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            background-color: #ebe7e0;
+            color: #2c2a29;
+            font-family: "Georgia", "Times New Roman", "PingFang SC", "Noto Serif CJK SC", serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: table;
+            width: 100%;
         }
-
-        /* 引导交互遮罩 */
-        #audio-prompt {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5,5,5,0.95); z-index: 100;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: opacity 0.6s ease;
+        .wrapper { display: table-cell; vertical-align: middle; text-align: center; padding: 0 40px; }
+        .poem-container { max-width: 600px; margin: 0 auto; }
+        .delayed-text {
+            font-size: 16pt;
+            line-height: 2;
+            color: rgba(44, 42, 41, 0.15);
+            text-shadow: 0 0 12px rgba(44, 42, 41, 0.8);
+            transition: color 12s cubic-bezier(0.25, 1, 0.5, 1), 
+                        text-shadow 15s cubic-bezier(0.25, 1, 0.5, 1),
+                        transform 15s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: default;
+            user-select: none;
+            display: block;
+            margin-bottom: 40px;
         }
-        #audio-prompt p {
-            font-size: 13px; letter-spacing: 4px; color: #888; margin-top: 15px;
-            animation: pulse 2s infinite;
+        .delayed-text:hover {
+            color: rgba(44, 42, 41, 0.85);
+            text-shadow: 35px 20px 25px rgba(74, 71, 68, 0.25);
+            transform: translate(-5px, -2px);
         }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-
-        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
-
-        /* UI层 */
-        .ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; pointer-events: none; padding: 40px;
-            display: flex; flex-direction: space-between;
-        }
-        .meta-info { position: absolute; top: 40px; left: 40px; font-size: 11px; color: #444; line-height: 1.6; }
-        .back-btn {
-            position: absolute; bottom: 40px; left: 40px;
-            color: #888; font-size: 12px; text-decoration: none;
-            letter-spacing: 2px; pointer-events: auto;
-            transition: color 0.3s;
-        }
-        .back-btn:hover { color: #fff; }
+        .hint { font-size: 9pt; color: #9c978e; letter-spacing: 1px; margin-top: 80px; animation: pulse 3s infinite; }
+        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 0.7; } 100% { opacity: 0.3; } }
+        .back-link { display: inline-block; margin-top: 40px; font-size: 11pt; color: #1a535c; text-decoration: none; border-bottom: 1px dotted #1a535c; }
+        .back-link:hover { color: #2c2a29; border-bottom: 1px solid #2c2a29; }
     </style>
 </head>
 <body>
-
-    <div id="audio-prompt">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><path d="M12 2v20M17 5v14M22 9v6M7 7v10M2 10v4"/></svg>
-        <p>点击初始化音频场并开始弹奏</p>
-    </div>
-
-    <div class="ui-layer">
-        <div class="meta-info">
-            <span style="color:#fff">MODULE 01: KINETIC STRING THEORY</span><br>
-            PHYSICS: VERLET INTEGRATION // AUDIO: REAL-TIME WEB AUDIO SYNTHESIZER<br>
-            [ SLASHER SPEED AND HEIGHT DICTATES FREQUENCY & GAIN ]
+    <div class="wrapper">
+        <div class="poem-container">
+            <span class="delayed-text">
+                你发送出去的那句早安，<br>
+                至今还没有在对方的屏幕上亮起。<br>
+                它像一颗意外熄灭的恒星，<br>
+                虽然死去了，但微弱的光线<br>
+                依旧在这个冰冷的网络里，独自赶路。
+            </span>
+            <div class="hint">—— 请将指针悬停在文本上，并保持静止，等待光影拉长 ——</div>
+            <a href="index.html" class="back-link">← 返回大堂</a>
         </div>
-        <a href="index.html" class="back-btn">← RETURN TO NEXUS</a>
     </div>
-
-    <canvas id="stringCanvas"></canvas>
-
-    <script>
-        // 音频上下文初始化延迟
-        let audioCtx = null;
-        document.getElementById('audio-prompt').addEventListener('click', function() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            this.style.opacity = 0;
-            setTimeout(() => this.remove(), 600);
-        });
-
-        const canvas = document.getElementById('stringCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let strings = [];
-        const stringCount = 9;
-
-        let mouse = { x: 0, y: 0, px: 0, py: 0 };
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            initStrings();
-        }
-
-        // 物理弦上的“节点”类（Verlet质点）
-        class Node {
-            constructor(x, y) {
-                this.x = x; this.y = y;
-                this.px = x; this.py = y; // 上一帧的位置
-            }
-            update() {
-                let vx = this.x - this.px;
-                let vy = this.y - this.py;
-                this.px = this.x; this.py = this.y;
-                this.x += vx * 0.98; // 带阻尼的惯性
-                this.y += vy * 0.98;
-            }
-        }
-
-        // 物理弦类
-        class CyberString {
-            constructor(yPosition, frequencyBase) {
-                this.yTarget = yPosition;
-                this.freq = frequencyBase;
-                this.nodeCount = 35; // 节点数越多，弦越柔软精细
-                this.nodes = [];
-                
-                let step = window.innerWidth / (this.nodeCount - 1);
-                for (let i = 0; i < this.nodeCount; i++) {
-                    this.nodes.push(new Node(i * step, yPosition));
-                }
-            }
-
-            update() {
-                // 1. 固定两端
-                this.nodes[0].x = 0; this.nodes[0].y = this.yTarget;
-                this.nodes[this.nodeCount - 1].x = width; this.nodes[this.nodeCount - 1].y = this.yTarget;
-
-                // 2. 更新节点物理与弹簧约束
-                for (let i = 0; i < this.nodeCount; i++) {
-                    this.nodes[i].update();
-                    // 恢复力：让弦回归原本的水平线
-                    this.nodes[i].y += (this.yTarget - this.nodes[i].y) * 0.015;
-                }
-
-                // 约束迭代（保证两点之间距离相对固定，体现张力）
-                for (let j = 0; j < 4; j++) {
-                    for (let i = 0; i < this.nodeCount - 1; i++) {
-                        let n1 = this.nodes[i];
-                        let n2 = this.nodes[i + 1];
-                        let dx = n2.x - n1.x;
-                        let dy = n2.y - n1.y;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
-                        let targetDist = width / (this.nodeCount - 1);
-                        let diff = (targetDist - dist) / dist * 0.5;
-                        let offsetX = dx * diff;
-                        let offsetY = dy * diff;
-
-                        if(i > 0) { n1.x -= offsetX; n1.y -= offsetY; }
-                        if(i < this.nodeCount - 2) { n2.x += offsetX; n2.y += offsetY; }
-                    }
-                }
-
-                // 3. 鼠标切割检测
-                this.checkInterfere();
-            }
-
-            checkInterfere() {
-                for (let i = 1; i < this.nodeCount - 1; i++) {
-                    let node = this.nodes[i];
-                    // 检测鼠标轨迹是否穿过这根弦的这一段
-                    let dMouse = Math.sqrt(Math.pow(mouse.x - node.x, 2) + Math.pow(mouse.y - node.y, 2));
-                    
-                    if (dMouse < 50) {
-                        let speed = Math.sqrt(Math.pow(mouse.x - mouse.px, 2) + Math.pow(mouse.y - mouse.py, 2));
-                        if (speed > 5) {
-                            // 施加垂直方向的冲量
-                            node.y += (mouse.y - mouse.py) * 0.5;
-                            
-                            // 触发音频合成
-                            if (Math.abs(node.y - this.yTarget) > 15 && Math.random() < 0.05) {
-                                this.playSound(node.x, speed);
-                            }
-                        }
-                    }
-                }
-            }
-
-            playSound(hitX, speed) {
-                if (!audioCtx) return;
-
-                // 基于碰撞的 X 坐标计算泛音偏置，基于基本频率计算最终音高
-                let xRatio = hitX / width;
-                let calculatedFreq = this.freq * (1 + Math.floor(xRatio * 5) * 0.25);
-                let volume = Math.min(speed / 40, 0.4);
-
-                let osc = audioCtx.createOscillator();
-                let gainNode = audioCtx.createGain();
-
-                // 使用赛博感十足的三角形波
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(calculatedFreq, audioCtx.currentTime);
-
-                // 瞬态指数级衰减包络线（模拟真实物理打击乐）
-                gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
-
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 1.2);
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.moveTo(this.nodes[0].x, this.nodes[0].y);
-                
-                for (let i = 1; i < this.nodeCount - 1; i++) {
-                    // 使用二次贝塞尔曲线平滑弦的线条
-                    let xc = (this.nodes[i].x + this.nodes[i + 1].x) / 2;
-                    let yc = (this.nodes[i].y + this.nodes[i + 1].y) / 2;
-                    ctx.quadraticCurveTo(this.nodes[i].x, this.nodes[i].y, xc, yc);
-                }
-                
-                ctx.lineTo(this.nodes[this.nodeCount - 1].x, this.nodes[this.nodeCount - 1].y);
-                
-                // 计算当前整根弦的形变程度，动态映射颜色亮度
-                let deformation = 0;
-                this.nodes.forEach(n => deformation += Math.abs(n.y - this.yTarget));
-                let brightness = Math.min(40 + (deformation / 10), 100);
-
-                ctx.strokeStyle = `hsla(0, 0%, ${brightness}%, 0.8)`;
-                ctx.lineWidth = 1 + (brightness / 80);
-                ctx.stroke();
-            }
-        }
-
-        function initStrings() {
-            strings = [];
-            let padding = height * 0.15;
-            let availableHeight = height * 0.7;
-            let step = availableHeight / (stringCount - 1);
-            
-            // 给每根弦分配基于纯律的调式频率 (A小调五声音阶)
-            const baseFreqs = [110, 123.47, 130.81, 146.83, 164.81, 196.00, 220.00, 246.94, 261.63];
-
-            for (let i = 0; i < stringCount; i++) {
-                strings.push(new CyberString(padding + i * step, baseFreqs[i % baseFreqs.length]));
-            }
-        }
-
-        window.addEventListener('resize', resize);
-        resize();
-
-        window.addEventListener('mousemove', (e) => {
-            mouse.px = mouse.x; mouse.py = mouse.y;
-            mouse.x = e.clientX; mouse.y = e.clientY;
-        });
-
-        function animate() {
-            // 微弱的黑色蒙版叠加，产生轻微的运动模糊，加强弦发光质感
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-            ctx.fillRect(0, 0, width, height);
-
-            strings.forEach(s => {
-                s.update();
-                s.draw();
-            });
-
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
 </body>
 </html>

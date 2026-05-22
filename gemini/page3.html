@@ -3,250 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHRONOS TEARING // ARCHIVE 03</title>
+    <title>房间03：无限滚动的白噪音</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { 
-            width: 100%; height: 100%; overflow: hidden; 
-            background: #080808; color: #fff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            cursor: crosshair;
-        }
-
-        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
-
-        /* 统一的高级 UI 框架 */
-        .ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; pointer-events: none; padding: 40px;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .meta-info { font-size: 11px; color: #444; line-height: 1.6; letter-spacing: 2px; }
-        .meta-info span { color: #fff; }
-        
-        .interaction-hint {
-            position: absolute; top: 40px; right: 40px;
-            font-size: 11px; color: #666; letter-spacing: 1px;
-        }
-
-        .back-btn {
-            color: #888; font-size: 12px; text-decoration: none;
-            letter-spacing: 2px; pointer-events: auto; width: fit-content;
-            font-family: monospace;
-            transition: color 0.3s;
-        }
-        .back-btn:hover { color: #fff; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { background-color: #1a1a1a; color: #555555; font-family: "Courier New", Courier, monospace; margin: 0; padding: 0; overflow-x: hidden; }
+        .ruler { position: absolute; right: 20px; top: 0; height: 100%; border-right: 1px dashed #333; color: #333; font-size: 9pt; padding-right: 5px; text-align: right; user-select: none; }
+        .marker { position: absolute; right: 5px; }
+        .static-container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .intro-block { color: #888; font-family: "PingFang SC", sans-serif; font-size: 11pt; line-height: 1.8; margin-bottom: 80px; margin-top: 100px; border: 1px solid #333; padding: 20px; background-color: #111; }
+        pre { margin: 0; padding: 0; font-size: 10pt; line-height: 1.2; letter-spacing: 4px; color: #3a3a3a; transition: color 0.5s; }
+        pre:hover { color: #888888; }
+        .bottom-sanctuary { margin-top: 200px; margin-bottom: 300px; text-align: center; font-family: "PingFang SC", serif; color: #aaa; }
+        .bottom-sanctuary p { font-size: 12pt; line-height: 2; margin-bottom: 40px; }
+        .back-link { font-size: 11pt; color: #52a3a3; text-decoration: none; border-bottom: 1px dotted #52a3a3; }
+        .back-link:hover { color: #eee; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
-
-    <canvas id="chronosCanvas"></canvas>
-
-    <div class="ui-layer">
-        <div class="meta-info">
-            <span>MODULE 03: CHRONOS TEARING</span><br>
-            AESTHETICS: DECONSTRUCTIVE TYPOGRAPHY // PHYSICS: PARTICLE EROSION & GRAVITY GRAIN<br>
-            [ INTERACTION: SLICE THE TEXT TO ACCELERATE ENTROPY COLLAPSE ]
-        </div>
-        <div class="interaction-hint">[ ERASE TIME ]</div>
-        <a href="index.html" class="back-btn">← RETURN TO NEXUS</a>
+    <div class="ruler">
+        <div class="marker" style="top: 500px;">海拔 -100m</div>
+        <div class="marker" style="top: 1500px;">海拔 -500m</div>
+        <div class="marker" style="top: 2800px;">海拔 -1000m</div>
+        <div class="marker" style="top: 4200px;">海底终点</div>
     </div>
-
-    <script>
-        const canvas = document.getElementById('chronosCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let particles = [];
-        let mouse = { x: -1000, y: -1000, px: -1000, py: -1000, speed: 0 };
-
-        // 需要被粒子化的哲学文本
-        const textLines = [
-            "CHRONOS TEARING",
-            " ",
-            "EVERY WORD WE CONCEIVE IS A TEMPORAL APPARITION.",
-            "WHEN THE QUANTUM SURGERY OF YOUR CURSOR CUTS THROUGH,",
-            "THE TEXTUAL MATRIX DISSOLVES BACK INTO THE COSMIC DUST",
-            "FROM WHICH IT WAS ALGORITHMICALLY BORN.",
-            " ",
-            "YOU ARE LOOKING AT THE COLLAPSE OF DIGITAL MEMORY."
-        ];
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            initTextParticles();
-        }
-
-        // 核心技术：离屏扫描并将字形像素转化为物理粒子
-        function initTextParticles() {
-            particles = [];
-            
-            // 创建一个临时的离屏画布来绘制文本并读取像素
-            const offscreen = document.createElement('canvas');
-            const oCtx = offscreen.getContext('2d');
-            offscreen.width = width;
-            offscreen.height = height;
-
-            // 设置排版样式
-            oCtx.fillStyle = "#ffffff";
-            oCtx.textBaseline = "middle";
-            oCtx.textAlign = "center";
-
-            // 根据屏幕大小自适应计算字号与行高
-            const fontSize = Math.max(14, Math.min(width * 0.022, 24));
-            oCtx.font = `bold ${fontSize}px 'Courier New', monospace`;
-            
-            const lineHeight = fontSize * 1.8;
-            const totalHeight = textLines.length * lineHeight;
-            let startY = (height - totalHeight) / 2;
-
-            // 将文本绘制到离屏画布中央
-            textLines.forEach((line, index) => {
-                // 第一行作为标题，加粗放大处理
-                if(index === 0) {
-                    oCtx.font = `bold ${fontSize * 1.6}px 'Helvetica Neue', Arial`;
-                } else {
-                    oCtx.font = `${fontSize}px 'Courier New', monospace`;
-                }
-                oCtx.fillText(line, width / 2, startY + (index * lineHeight));
-            });
-
-            // 获取离屏画布的像素数据
-            const buffer = oCtx.getImageData(0, 0, width, height);
-            const data = buffer.data;
-            
-            // 步长：每隔 3 个像素采样一次，既保证字形极其精致，又将粒子控制在硬件极速渲染范围内
-            const step = 3; 
-
-            for (let y = 0; y < height; y += step) {
-                for (let x = 0; x < width; x += step) {
-                    const alphaIdx = (y * width + x) * 4 + 3;
-                    if (data[alphaIdx] > 128) { // 如果像素不透明度大于一半，说明有文字
-                        particles.push({
-                            x: x, y: y,               // 当前物理坐标
-                            origX: x, origY: y,       // 原始文本锚点坐标
-                            vx: 0, vy: 0,             // 速度
-                            isTorn: false,            // 是否被鼠标撕裂解构
-                            alpha: data[alphaIdx] / 255,
-                            size: Math.random() * 1.5 + 1,
-                            vibePhase: Math.random() * Math.PI * 2, // 赋予静止时的微有机震颤
-                            vibeSpeed: Math.random() * 0.05 + 0.02
-                        });
-                    }
-                }
-            }
-        }
-
-        // 物理动力学模拟
-        function updateParticles() {
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-
-                if (!p.isTorn) {
-                    // 状态 1：未被撕裂，维持高级平面字形，伴随微弱的赛博生命呼吸感
-                    p.vibePhase += p.vibeSpeed;
-                    p.x = p.origX + Math.sin(p.vibePhase) * 0.4;
-                    p.y = p.origY + Math.cos(p.vibePhase) * 0.4;
-
-                    // 检测鼠标划过：计算鼠标线段距离或点距离
-                    const dx = mouse.x - p.x;
-                    const dy = mouse.y - p.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < 45) {
-                        // 鼠标切割瞬间：根据鼠标运动速度和方向，赋予粒子初始爆发冲量
-                        p.isTorn = true;
-                        p.vx = (p.x - mouse.px) * 0.4 + (Math.random() - 0.5) * 2;
-                        p.vy = (p.y - mouse.py) * 0.4 + (Math.random() - 0.5) * 2;
-                    }
-                } else {
-                    // 状态 2：已被撕裂，进入沙漏物理场（受重力、微风阻和边界碰撞影响）
-                    p.vy += 0.22; // 虚拟重力加速度
-                    p.vx *= 0.98; // 空气阻力
-                    p.vy *= 0.98;
-
-                    // 引入微弱的横向量子随机漂移（风力）
-                    p.vx += (Math.random() - 0.5) * 0.15;
-
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    // 屏幕底部边界碰撞：落地变成堆积的沙粒
-                    if (p.y >= height - 2) {
-                        p.y = height - 2;
-                        p.vy = -p.vy * 0.15; // 极低的弹力，使其迅速转为堆积状态
-                        p.vx *= 0.6;         // 地面摩擦力
-                        
-                        // 让堆积的沙粒产生向两边自然滑落的趋势
-                        p.vx += (Math.random() - 0.5) * 0.5;
-                    }
-
-                    // 左右边界碰撞
-                    if (p.x < 0 || p.x > width) p.vx *= -1;
-                }
-            }
-        }
-
-        // 高画质渲染
-        function draw() {
-            // 采用极弱的清屏蒙版，为坠落的文本沙粒保留极具诗意的微弱光影尾迹
-            ctx.fillStyle = 'rgba(8, 8, 8, 0.35)';
-            ctx.fillRect(0, 0, width, height);
-
-            // 批量绘制像素点，确保帧率稳稳锁定在 60fps
-            ctx.fillStyle = '#ffffff';
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                ctx.globalAlpha = p.alpha;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-            }
-            ctx.globalAlpha = 1.0;
-
-            // 绘制鼠标割裂轨迹的幽灵线条
-            if (mouse.speed > 2) {
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(mouse.px, mouse.py);
-                ctx.lineTo(mouse.x, mouse.y);
-                ctx.stroke();
-            }
-        }
-
-        // 监听鼠标轨迹
-        window.addEventListener('mousemove', (e) => {
-            mouse.px = mouse.x;
-            mouse.py = mouse.y;
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-
-            // 计算移动速度
-            const dx = mouse.x - mouse.px;
-            const dy = mouse.y - mouse.py;
-            mouse.speed = Math.sqrt(dx * dx + dy * dy);
-        });
-
-        // 支持移动端设备
-        window.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            mouse.px = mouse.x; mouse.py = mouse.y;
-            mouse.x = touch.clientX; mouse.y = touch.clientY;
-            mouse.speed = 5;
-        });
-
-        // 动画总循环
-        function loop() {
-            updateParticles();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        window.addEventListener('resize', resize);
-        
-        // 启动系统
-        resize();
-        loop();
-    </script>
+    <div class="static-container">
+        <div class="intro-block">
+            <strong>收容项目 #003：无差别电磁噪音</strong><br><br>
+            在这个房间，所有的字符都失去了组合成词组的权利。它们退化为无意义的点、线与空白。请握紧您的鼠标滚轮，向着数字世界的深渊持续下潜。当你穿过足够密集的杂音，重力会在最底层给你一个答案。
+        </div>
+        <pre>.   .      .       .   .      .   .   .  .</pre>
+        <pre>   .     :   .        .    :    .       .</pre>
+        <pre>.      .     .   .     .      .     .    </pre>
+        <pre>  :       .     .    :    .    .   .    :</pre>
+        <pre>.   .   :    .     .    .     :    .    .</pre>
+        <div style="height: 100px;"></div>
+        <pre>:: :. .:: .  .: ::. : .:: .. :. .::</pre>
+        <pre>..: . :. ::. . : . ..: . :. ::. . :</pre>
+        <pre>:. ::. : .:: .. :. .:: :. ::. : .::</pre>
+        <pre>. : . ..: . :. ::. . : . ..: . :. :</pre>
+        <div style="height: 200px;"></div>
+        <pre>||| |::| ||:| |:::|| |::| ||:| |:::||</pre>
+        <pre>|:::|| |::| ||:| |:::|| |::| ||:| |::</pre>
+        <pre>#...#...#...#...#...#...#...#...#...#</pre>
+        <pre>..###...###...###...###...###...###..</pre>
+        <pre>::::#::::#::::#::::#::::#::::#::::#::</pre>
+        <div style="height: 300px;"></div>
+        <pre>01010011 01001111 01010011 00100000 01001111</pre>
+        <pre>&%*&@#%^&*()*&^%$#@!@#$^&*()(*&^$#@!</pre>
+        <pre>====================================</pre>
+        <pre>++++++++++++++++++++++++++++++++++++</pre>
+        <pre>::::::::::::::::::::::::::::::::::::</pre>
+        <pre>....................................</pre>
+        <pre>░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</pre>
+        <pre>▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒</pre>
+        <pre>▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓</pre>
+        <pre>████████████████████████████████████</pre>
+        <div style="height: 400px;"></div>
+        <pre>.   .   .   .   .   .   .   .   .   .   .</pre>
+        <pre>   .       .       .       .       .   </pre>
+        <pre>       .               .               </pre>
+        <pre>                                       </pre>
+        <div style="height: 300px;"></div>
+        <div class="bottom-sanctuary">
+            <p>
+                「恭喜你，你抵达了最深的地方。」<br><br>
+                这里什么信息也没有。<br>
+                那些逼着你接收的、逼着你点赞的、逼着你焦虑的新闻与推送，<br>
+                由于无法承受这四千像素的重力，都在半路溃散了。<br>
+                现在，这里只有你，和你自己的呼吸声。
+            </p>
+            <a href="index.html" class="back-link">← 浮出水面，返回大堂</a>
+        </div>
+    </div>
 </body>
 </html>

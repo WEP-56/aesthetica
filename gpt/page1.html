@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>潮线 | 退潮档案</title>
+  <style>
+    :root {
+      --paper: #e4ddcc;
+      --ink: #20201c;
+      --muted: #6f695b;
+      --line: rgba(32, 32, 28, .24);
+      --water: #2b5860;
+      --rust: #8f2f24;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      background:
+        linear-gradient(180deg, transparent 0 41%, rgba(43, 88, 96, .18) 41.2%, rgba(43, 88, 96, .06) 42%, transparent 43%),
+        repeating-linear-gradient(0deg, rgba(32, 32, 28, .035) 0 1px, transparent 1px 8px),
+        var(--paper);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1120px, calc(100vw - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 260px;
+      gap: 32px;
+      padding: 28px 0;
+    }
+
+    nav {
+      border-right: 1px solid var(--line);
+      padding-right: 18px;
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: var(--muted);
+    }
+
+    nav a {
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .mark {
+      writing-mode: vertical-rl;
+      letter-spacing: 0;
+      margin-top: 28vh;
+      color: var(--rust);
+    }
+
+    article {
+      position: relative;
+      padding-top: 10vh;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font: 12px/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 32px;
+      font-size: clamp(56px, 11vw, 138px);
+      line-height: .86;
+      font-weight: 400;
+    }
+
+    .measure {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+      margin: 44px 0;
+    }
+
+    .cell {
+      min-height: 150px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cell b {
+      font: 32px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-weight: 400;
+      color: var(--water);
+    }
+
+    .cell span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .text {
+      max-width: 650px;
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 2.05;
+    }
+
+    aside {
+      align-self: end;
+      border-left: 1px solid var(--line);
+      padding-left: 22px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .stamp {
+      width: 118px;
+      height: 118px;
+      border: 2px solid rgba(143, 47, 36, .55);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--rust);
+      transform: rotate(9deg);
+      margin-bottom: 24px;
+      font: 13px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-align: center;
+    }
+
+    @media (max-width: 840px) {
+      .page {
+        display: block;
+      }
+
+      nav {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 0 0 16px;
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      nav a {
+        margin: 0;
+      }
+
+      .mark {
+        writing-mode: horizontal-tb;
+        margin-top: 0;
+      }
+
+      article {
+        padding-top: 42px;
+      }
+
+      .measure {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      aside {
+        margin-top: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav aria-label="页面导航">
+      <a href="index.html">目录</a>
+      <a href="page2.html">下一页</a>
+      <span class="mark">水平线未撤销</span>
+    </nav>
+
+    <article>
+      <div class="kicker">page 01 / measured wall</div>
+      <h1>潮线</h1>
+      <p class="text">水不是一下子离开的。它先把门框让出来，再把插座让出来，最后把墙上的旧日历还给房间。留下的线很细，像有人用指甲在整座城市的内部划过。</p>
+
+      <section class="measure" aria-label="水位记录">
+        <div class="cell"><b>08</b><span>厘米，鞋底还能假装干净。</span></div>
+        <div class="cell"><b>19</b><span>厘米，抽屉开始自己打开。</span></div>
+        <div class="cell"><b>37</b><span>厘米，照片背面出现盐。</span></div>
+        <div class="cell"><b>64</b><span>厘米，名字从门牌上浮起。</span></div>
+      </section>
+
+      <p class="text">后来他们把墙重新粉刷了一遍。粉刷工很熟练，像是在处理一种不值得命名的天气。但下午四点以后，光斜着照进来，那条线仍然站在那里。</p>
+    </article>
+
+    <aside>
+      <div class="stamp">checked<br>but not<br>closed</div>
+      <p>记录员备注：水位最高处没有对应降雨量。询问附近居民时，三人同时提到楼道里有海腥味，但该街区距海岸线二十七公里。</p>
+    </aside>
+  </main>
+</body>
+</html>

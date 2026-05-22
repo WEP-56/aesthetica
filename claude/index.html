@@ -1,475 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLAUDE // PRECISION ORGANISM</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>事物的重量</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
 
-        body, html {
-            width: 100%; height: 100%;
-            overflow: hidden;
-            background: #f0ede8;
-            font-family: 'DM Mono', monospace;
-            cursor: none;
-        }
+    body {
+      background-color: #f5f2ed;
+      color: #1a1a1a;
+      font-family: "Georgia", "宋体", serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 0 0 12vw;
+      min-height: 100vh;
+    }
 
-        canvas {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-        }
+    .title {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: normal;
+      letter-spacing: 0.25em;
+      color: #1a1a1a;
+      margin-bottom: 3.5rem;
+    }
 
-        .ui {
-            position: absolute;
-            inset: 0;
-            z-index: 10;
-            pointer-events: none;
-            padding: 48px 56px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+    .subtitle {
+      font-size: clamp(0.75rem, 1.2vw, 0.85rem);
+      color: #888;
+      letter-spacing: 0.1em;
+      margin-bottom: 5rem;
+      font-style: italic;
+    }
 
-        .ui-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+    }
 
-        .title-block h1 {
-            font-family: 'EB Garamond', Georgia, serif;
-            font-size: 13px;
-            font-weight: 400;
-            letter-spacing: 1px;
-            color: #2a2520;
-        }
-        .title-block .sub {
-            font-size: 9px;
-            letter-spacing: 3px;
-            color: #a09880;
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
+    nav a {
+      text-decoration: none;
+      color: #1a1a1a;
+      font-size: clamp(0.85rem, 1.4vw, 1rem);
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: baseline;
+      gap: 1.2rem;
+      transition: color 0.2s;
+      width: fit-content;
+    }
 
-        .status {
-            text-align: right;
-            font-size: 9px;
-            letter-spacing: 2px;
-            color: #b0a890;
-            line-height: 2.2;
-        }
+    nav a:hover {
+      color: #888;
+    }
 
-        .status .live {
-            color: #2a2520;
-        }
+    nav a .index-num {
+      font-size: 0.7em;
+      color: #bbb;
+      font-style: normal;
+      min-width: 1.5rem;
+    }
 
-        .ui-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .instruction {
-            font-size: 9px;
-            letter-spacing: 2px;
-            color: #b0a890;
-            text-transform: uppercase;
-        }
-
-        .coords {
-            font-size: 9px;
-            letter-spacing: 1px;
-            color: #b0a890;
-            text-align: right;
-        }
-
-        /* Node info panel */
-        #info-panel {
-            position: absolute;
-            z-index: 20;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #info-panel.visible { opacity: 1; }
-
-        #info-panel .panel-inner {
-            background: #f0ede8;
-            border: 1px solid rgba(42,37,32,0.15);
-            padding: 16px 20px;
-            width: 200px;
-        }
-
-        #info-panel .panel-num {
-            font-size: 9px;
-            letter-spacing: 3px;
-            color: #a09880;
-            margin-bottom: 6px;
-        }
-
-        #info-panel .panel-title {
-            font-family: 'EB Garamond', serif;
-            font-size: 18px;
-            color: #2a2520;
-            margin-bottom: 4px;
-        }
-
-        #info-panel .panel-desc {
-            font-size: 9px;
-            letter-spacing: 1px;
-            color: #a09880;
-            line-height: 1.8;
-        }
-
-        #info-panel .panel-hint {
-            margin-top: 12px;
-            font-size: 8px;
-            letter-spacing: 2px;
-            color: #c0b8a8;
-            text-transform: uppercase;
-        }
-
-        /* cursor */
-        #cursor {
-            width: 6px;
-            height: 6px;
-            border: 1px solid #2a2520;
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background 0.2s;
-            mix-blend-mode: multiply;
-        }
-        #cursor.on-node {
-            width: 14px;
-            height: 14px;
-            background: rgba(42,37,32,0.08);
-        }
-        #cursor-trail {
-            width: 1px;
-            height: 1px;
-            background: #2a2520;
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            opacity: 0.3;
-        }
-    </style>
+    .footer-note {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 12vw;
+      font-size: 0.7rem;
+      color: #ccc;
+      letter-spacing: 0.05em;
+    }
+  </style>
 </head>
 <body>
 
-<div id="cursor"></div>
-<div id="cursor-trail"></div>
+  <p class="title">事物的重量</p>
+  <p class="subtitle">五件事，每件都在你离开后继续存在</p>
 
-<canvas id="c"></canvas>
+  <nav>
+    <a href="page1.html">
+      <span class="index-num">一</span>
+      <span>椅子</span>
+    </a>
+    <a href="page2.html">
+      <span class="index-num">二</span>
+      <span>关灯后的一秒</span>
+    </a>
+    <a href="page3.html">
+      <span class="index-num">三</span>
+      <span>用完的圆珠笔</span>
+    </a>
+    <a href="page4.html">
+      <span class="index-num">四</span>
+      <span>窗上的水痕</span>
+    </a>
+    <a href="page5.html">
+      <span class="index-num">五</span>
+      <span>离开</span>
+    </a>
+  </nav>
 
-<div class="ui">
-    <div class="ui-top">
-        <div class="title-block">
-            <h1>Precision Organism</h1>
-            <div class="sub">Claude · Navigation Matrix</div>
-        </div>
-        <div class="status">
-            <div>NODES <span class="live">04</span></div>
-            <div>STATUS <span class="live">ACTIVE</span></div>
-            <div>PULSE <span class="live" id="bpm">—</span></div>
-        </div>
-    </div>
-    <div class="ui-bottom">
-        <div class="instruction">Hover to activate · Click to enter</div>
-        <div class="coords" id="coords">— , —</div>
-    </div>
-</div>
-
-<div id="info-panel">
-    <div class="panel-inner">
-        <div class="panel-num" id="p-num">01</div>
-        <div class="panel-title" id="p-title">—</div>
-        <div class="panel-desc" id="p-desc">—</div>
-        <div class="panel-hint">Click to enter →</div>
-    </div>
-</div>
-
-<script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const cursor = document.getElementById('cursor');
-const trail = document.getElementById('cursor-trail');
-const panel = document.getElementById('info-panel');
-const coordsEl = document.getElementById('coords');
-const bpmEl = document.getElementById('bpm');
-
-let W, H, t = 0;
-let mx = -1000, my = -1000;
-let tmx = -1000, tmy = -1000;
-let activeNode = null;
-
-const pages = [
-    { num:'00', title:'Topology Gate', desc:'This portal\nNavigation matrix', url:'index.html' },
-    { num:'01', title:'Vector Field', desc:'Mouse-driven\nparticle force field', url:'field.html' },
-    { num:'02', title:'Tension Membrane', desc:'Elastic grid\nphysics simulation', url:'membrane.html' },
-    { num:'03', title:'Drift', desc:'Language decoded\nletters in motion', url:'typeface.html' },
-];
-
-// Hex geometry
-const HEX_R = 72;
-const HEX_GAP = 10;
-const HEX_STEP = HEX_R * Math.sqrt(3) + HEX_GAP;
-
-function hexCorners(cx, cy, r) {
-    const pts = [];
-    for (let i = 0; i < 6; i++) {
-        const a = Math.PI / 180 * (60 * i - 30);
-        pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
-    }
-    return pts;
-}
-
-function hexPath(cx, cy, r) {
-    const pts = hexCorners(cx, cy, r);
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < 6; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-    ctx.closePath();
-}
-
-function pointInHex(px, py, cx, cy, r) {
-    const dx = px - cx, dy = py - cy;
-    return Math.sqrt(dx * dx + dy * dy) < r * 0.92;
-}
-
-// Node positions: arranged in a cross/diamond pattern
-function getNodes() {
-    const cx = W / 2, cy = H / 2;
-    const s = HEX_STEP;
-    return [
-        { x: cx, y: cy - s, ...pages[0] },                      // top = index (self)
-        { x: cx + s * Math.cos(Math.PI/6), y: cy + s * 0.5, ...pages[1] }, // bottom-right
-        { x: cx, y: cy + s, ...pages[2] },                      // bottom
-        { x: cx - s * Math.cos(Math.PI/6), y: cy + s * 0.5, ...pages[3] }, // bottom-left
-    ];
-}
-
-// Background grid of faint hexagons
-function drawGrid() {
-    const cols = Math.ceil(W / (HEX_STEP)) + 2;
-    const rows = Math.ceil(H / (HEX_STEP * 0.866)) + 2;
-
-    ctx.strokeStyle = 'rgba(42,37,32,0.05)';
-    ctx.lineWidth = 0.5;
-
-    for (let row = -1; row < rows; row++) {
-        for (let col = -1; col < cols; col++) {
-            const x = col * HEX_STEP + (row % 2 === 0 ? 0 : HEX_STEP / 2);
-            const y = row * HEX_STEP * 0.866;
-            hexPath(x, y, HEX_R * 0.52);
-            ctx.stroke();
-        }
-    }
-}
-
-// Pulse rings emanating from active node
-let pulseRings = [];
-let lastPulseTime = 0;
-
-function spawnPulse(x, y) {
-    pulseRings.push({ x, y, r: HEX_R, maxR: HEX_R * 3.5, alpha: 0.4, t: 0 });
-}
-
-function drawPulses() {
-    pulseRings = pulseRings.filter(p => p.r < p.maxR);
-    pulseRings.forEach(p => {
-        p.r += 1.2;
-        p.alpha *= 0.975;
-        p.t++;
-        ctx.strokeStyle = `rgba(42,37,32,${p.alpha})`;
-        ctx.lineWidth = 0.5;
-        hexPath(p.x, p.y, p.r);
-        ctx.stroke();
-    });
-}
-
-// Connection lines between nodes
-function drawConnections(nodes) {
-    const pairs = [[0,1],[0,2],[0,3],[1,2],[2,3]];
-    pairs.forEach(([a,b]) => {
-        const na = nodes[a], nb = nodes[b];
-        const dx = nb.x - na.x, dy = nb.y - na.y;
-        const dist = Math.sqrt(dx*dx+dy*dy);
-
-        // animated dash offset
-        const offset = (t * 0.3) % 20;
-
-        ctx.save();
-        ctx.setLineDash([3, 17]);
-        ctx.lineDashOffset = -offset;
-        ctx.strokeStyle = 'rgba(42,37,32,0.12)';
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(na.x, na.y);
-        ctx.lineTo(nb.x, nb.y);
-        ctx.stroke();
-        ctx.restore();
-
-        // tiny travelling dot
-        const phase = ((t * 0.004) + (a * 0.3)) % 1;
-        const tx_ = na.x + dx * phase;
-        const ty_ = na.y + dy * phase;
-        ctx.fillStyle = 'rgba(42,37,32,0.25)';
-        ctx.beginPath();
-        ctx.arc(tx_, ty_, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-    });
-}
-
-function drawNode(node, isActive) {
-    const breath = Math.sin(t * 0.02 + node.x * 0.01) * 3;
-    const r = HEX_R + (isActive ? 6 : 0) + breath * 0.3;
-
-    // outer ring (faint)
-    ctx.strokeStyle = isActive ? 'rgba(42,37,32,0.35)' : 'rgba(42,37,32,0.1)';
-    ctx.lineWidth = isActive ? 1 : 0.5;
-    hexPath(node.x, node.y, r + 12);
-    ctx.stroke();
-
-    // fill
-    ctx.fillStyle = isActive ? 'rgba(42,37,32,0.06)' : 'rgba(240,237,232,0.9)';
-    hexPath(node.x, node.y, r);
-    ctx.fill();
-
-    // border
-    ctx.strokeStyle = isActive ? 'rgba(42,37,32,0.6)' : 'rgba(42,37,32,0.2)';
-    ctx.lineWidth = isActive ? 1 : 0.5;
-    hexPath(node.x, node.y, r);
-    ctx.stroke();
-
-    // number
-    ctx.fillStyle = isActive ? 'rgba(42,37,32,0.5)' : 'rgba(42,37,32,0.25)';
-    ctx.font = `300 9px "DM Mono", monospace`;
-    ctx.textAlign = 'center';
-    ctx.letterSpacing = '2px';
-    ctx.fillText(node.num, node.x, node.y - 16);
-
-    // title
-    ctx.fillStyle = isActive ? '#2a2520' : 'rgba(42,37,32,0.6)';
-    ctx.font = isActive
-        ? `400 15px "EB Garamond", serif`
-        : `400 13px "EB Garamond", serif`;
-    ctx.fillText(node.title, node.x, node.y + 4);
-
-    // small indicator tick marks around hex at 60° intervals
-    if (isActive) {
-        for (let i = 0; i < 6; i++) {
-            const angle = Math.PI / 180 * (60 * i - 30 + t * 0.15);
-            const ir = r + 18, or = r + 24;
-            ctx.strokeStyle = 'rgba(42,37,32,0.3)';
-            ctx.lineWidth = 0.8;
-            ctx.beginPath();
-            ctx.moveTo(node.x + ir * Math.cos(angle), node.y + ir * Math.sin(angle));
-            ctx.lineTo(node.x + or * Math.cos(angle), node.y + or * Math.sin(angle));
-            ctx.stroke();
-        }
-    }
-}
-
-function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-}
-
-let frameCount = 0;
-function animate() {
-    ctx.clearRect(0, 0, W, H);
-
-    // smooth bg
-    ctx.fillStyle = '#f0ede8';
-    ctx.fillRect(0, 0, W, H);
-
-    drawGrid();
-
-    const nodes = getNodes();
-    drawConnections(nodes);
-    drawPulses();
-
-    // find hovered node
-    activeNode = null;
-    nodes.forEach(node => {
-        if (pointInHex(mx, my, node.x, node.y, HEX_R + 8)) {
-            activeNode = node;
-        }
-    });
-
-    nodes.forEach(node => drawNode(node, node === activeNode));
-
-    // pulse from center node periodically
-    frameCount++;
-    if (frameCount % 90 === 0) {
-        spawnPulse(nodes[0].x, nodes[0].y);
-        bpmEl.textContent = Math.floor(60 / (90/60)) + ' bpm';
-    }
-
-    // cursor smooth follow
-    mx += (tmx - mx) * 0.12;
-    my += (tmy - my) * 0.12;
-
-    t++;
-    requestAnimationFrame(animate);
-}
-
-// Mouse
-window.addEventListener('mousemove', e => {
-    tmx = e.clientX;
-    tmy = e.clientY;
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-    trail.style.left = e.clientX + 'px';
-    trail.style.top = e.clientY + 'px';
-    coordsEl.textContent = `${e.clientX} , ${e.clientY}`;
-});
-
-window.addEventListener('mousemove', () => {
-    const nodes = getNodes();
-    const hovered = nodes.find(n => pointInHex(tmx, tmy, n.x, n.y, HEX_R + 8));
-    if (hovered) {
-        cursor.classList.add('on-node');
-        panel.classList.add('visible');
-        document.getElementById('p-num').textContent = hovered.num;
-        document.getElementById('p-title').textContent = hovered.title;
-        document.getElementById('p-desc').textContent = hovered.desc.replace('\n', ' · ');
-
-        // Position panel
-        let px = tmx + 28, py = tmy - 20;
-        if (px + 220 > W) px = tmx - 228;
-        if (py + 120 > H) py = tmy - 120;
-        panel.style.left = px + 'px';
-        panel.style.top = py + 'px';
-    } else {
-        cursor.classList.remove('on-node');
-        panel.classList.remove('visible');
-    }
-});
-
-window.addEventListener('click', () => {
-    const nodes = getNodes();
-    const hovered = nodes.find(n => pointInHex(tmx, tmy, n.x, n.y, HEX_R + 8));
-    if (hovered && hovered.url) {
-        window.location.href = hovered.url;
-    }
-});
-
-window.addEventListener('resize', resize);
-resize();
-animate();
-</script>
+  <p class="footer-note">请慢慢看</p>
 
 </body>
 </html>
