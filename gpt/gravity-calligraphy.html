@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RITE 01 // 引力书法</title>
+  <style>
+    :root {
+      --paper: #f4efe6;
+      --ink: #080909;
+      --line: rgba(244, 239, 230, 0.16);
+      --dim: rgba(244, 239, 230, 0.62);
+      --gold: #f3bd63;
+      --cyan: #42e6d2;
+      --rose: #ff5d8f;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at center, transparent 0, rgba(0,0,0,0.42) 76%),
+        repeating-radial-gradient(circle at 30% 40%, rgba(244,239,230,0.035) 0 1px, transparent 1px 4px);
+      mix-blend-mode: screen;
+      opacity: 0.48;
+    }
+
+    header, .panel, .rail {
+      position: fixed;
+      z-index: 2;
+    }
+
+    header {
+      top: 28px;
+      left: 30px;
+      right: 30px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      pointer-events: auto;
+    }
+
+    .back {
+      font-family: "Consolas", monospace;
+      color: var(--dim);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid rgba(244,239,230,0.28);
+      padding-bottom: 6px;
+    }
+
+    h1 {
+      margin: 12px 0 0;
+      font-size: clamp(42px, 9vw, 122px);
+      line-height: 0.88;
+      letter-spacing: 0;
+      font-weight: 760;
+    }
+
+    .intent {
+      max-width: 430px;
+      color: rgba(244, 239, 230, 0.7);
+      font-size: 14px;
+      line-height: 1.8;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .panel {
+      left: 30px;
+      bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: rgba(8, 9, 9, 0.52);
+      backdrop-filter: blur(16px);
+    }
+
+    button {
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(244,239,230,0.22);
+      background: transparent;
+      color: var(--paper);
+      font-size: 21px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: inset 0 0 24px rgba(243,189,99,0.16);
+    }
+
+    .meter {
+      width: min(34vw, 280px);
+      height: 1px;
+      background: rgba(244,239,230,0.18);
+      margin-left: 10px;
+      position: relative;
+    }
+
+    .meter::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: -2px;
+      height: 5px;
+      width: calc(var(--energy, 40) * 1%);
+      background: linear-gradient(90deg, var(--gold), var(--cyan), var(--rose));
+      box-shadow: 0 0 18px rgba(66,230,210,0.5);
+    }
+
+    .rail {
+      right: 30px;
+      bottom: 28px;
+      writing-mode: vertical-rl;
+      color: var(--dim);
+      font-family: "Consolas", monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 760px) {
+      body { overflow: hidden; }
+      header {
+        display: block;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+      }
+      .intent {
+        text-align: left;
+        max-width: 330px;
+        font-size: 12px;
+      }
+      .panel { left: 20px; right: 20px; bottom: 20px; }
+      .meter { flex: 1; width: auto; }
+      .rail { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="ink"></canvas>
+  <div class="grain"></div>
+
+  <header>
+    <div>
+      <a class="back" href="index.html">← DIGITAL RITES</a>
+      <h1>引力<br>书法</h1>
+    </div>
+    <p class="intent">
+      创作意图：让粒子像墨一样服从手势。它们有目标字形，但鼠标会像一枚看不见的磁石，把笔锋拉开，再让结构慢慢自我修复。
+    </p>
+  </header>
+
+  <div class="panel" aria-label="字形选择">
+    <button type="button" data-glyph="灵" aria-pressed="true" title="灵">灵</button>
+    <button type="button" data-glyph="造" aria-pressed="false" title="造">造</button>
+    <button type="button" data-glyph="AI" aria-pressed="false" title="AI">AI</button>
+    <div class="meter" id="meter"></div>
+  </div>
+  <div class="rail">move slowly / hold and tear the ink field</div>
+
+  <script>
+    const canvas = document.getElementById("ink");
+    const ctx = canvas.getContext("2d");
+    const meter = document.getElementById("meter");
+    const buttons = [...document.querySelectorAll("button[data-glyph]")];
+    const pointer = { x: innerWidth / 2, y: innerHeight / 2, px: innerWidth / 2, py: innerHeight / 2, active: false, down: false, speed: 0 };
+    const particles = [];
+    let glyph = "灵";
+    let dpr = 1;
+    let energy = 0.34;
+
+    function resize() {
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(innerWidth * dpr);
+      canvas.height = Math.floor(innerHeight * dpr);
+      canvas.style.width = innerWidth + "px";
+      canvas.style.height = innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGlyph(glyph);
+    }
+
+    function glyphPoints(text) {
+      const off = document.createElement("canvas");
+      const side = Math.min(760, Math.max(360, Math.min(innerWidth, innerHeight) * 0.84));
+      off.width = side;
+      off.height = side;
+      const o = off.getContext("2d");
+      o.clearRect(0, 0, side, side);
+      o.fillStyle = "#fff";
+      o.textAlign = "center";
+      o.textBaseline = "middle";
+      o.font = `900 ${text.length > 1 ? side * 0.42 : side * 0.72}px "Microsoft YaHei", "SimHei", sans-serif`;
+      o.fillText(text, side / 2, side / 2 + side * 0.02);
+      const data = o.getImageData(0, 0, side, side).data;
+      const points = [];
+      const step = Math.max(4, Math.floor(side / 118));
+      for (let y = 0; y < side; y += step) {
+        for (let x = 0; x < side; x += step) {
+          if (data[(y * side + x) * 4 + 3] > 20 && Math.random() > 0.16) {
+            points.push({
+              x: innerWidth / 2 - side / 2 + x,
+              y: innerHeight / 2 - side / 2 + y
+            });
+          }
+        }
+      }
+      return points.sort(() => Math.random() - 0.5).slice(0, Math.min(2400, Math.floor(innerWidth * innerHeight / 360)));
+    }
+
+    function buildGlyph(next) {
+      glyph = next;
+      const targets = glyphPoints(glyph);
+      const existing = particles.length;
+      for (let i = existing; i < targets.length; i++) {
+        particles.push({
+          x: Math.random() * innerWidth,
+          y: Math.random() * innerHeight,
+          vx: 0,
+          vy: 0,
+          hue: Math.random(),
+          size: 0.7 + Math.random() * 1.8,
+          tx: targets[i].x,
+          ty: targets[i].y
+        });
+      }
+      particles.length = targets.length;
+      for (let i = 0; i < targets.length; i++) {
+        particles[i].tx = targets[i].x;
+        particles[i].ty = targets[i].y;
+      }
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.glyph === glyph)));
+    }
+
+    function draw() {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(8,9,9,0.16)";
+      ctx.fillRect(0, 0, innerWidth, innerHeight);
+      ctx.globalCompositeOperation = "lighter";
+
+      pointer.speed *= 0.9;
+      energy += ((pointer.active ? Math.min(1, pointer.speed / 42 + (pointer.down ? 0.32 : 0.08)) : 0.18) - energy) * 0.06;
+      meter.style.setProperty("--energy", Math.round(energy * 100));
+
+      for (const p of particles) {
+        const ax = (p.tx - p.x) * 0.012;
+        const ay = (p.ty - p.y) * 0.012;
+        p.vx += ax;
+        p.vy += ay;
+
+        if (pointer.active) {
+          const dx = p.x - pointer.x;
+          const dy = p.y - pointer.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const radius = pointer.down ? 260 : 180;
+          if (dist < radius) {
+            const force = (1 - dist / radius) * (pointer.down ? 5.2 : -2.2);
+            p.vx += dx / dist * force + (pointer.y - pointer.py) * 0.018;
+            p.vy += dy / dist * force - (pointer.x - pointer.px) * 0.018;
+          }
+        }
+
+        p.vx *= 0.89;
+        p.vy *= 0.89;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        const glow = 0.45 + energy * 0.45;
+        const color = p.hue < 0.52
+          ? `rgba(243,189,99,${glow})`
+          : p.hue < 0.82
+            ? `rgba(66,230,210,${glow * 0.72})`
+            : `rgba(255,93,143,${glow * 0.62})`;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size + energy * 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    function move(event) {
+      pointer.px = pointer.x;
+      pointer.py = pointer.y;
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+      pointer.speed = Math.hypot(pointer.x - pointer.px, pointer.y - pointer.py);
+      pointer.active = true;
+    }
+
+    buttons.forEach((button) => button.addEventListener("click", () => buildGlyph(button.dataset.glyph)));
+    addEventListener("resize", resize);
+    addEventListener("pointermove", move);
+    addEventListener("pointerdown", (event) => { pointer.down = true; move(event); });
+    addEventListener("pointerup", () => pointer.down = false);
+    addEventListener("pointerleave", () => { pointer.active = false; pointer.down = false; });
+    resize();
+    ctx.fillStyle = "#080909";
+    ctx.fillRect(0, 0, innerWidth, innerHeight);
+    draw();
+  </script>
+</body>
+</html>

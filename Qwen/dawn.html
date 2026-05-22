@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五点半 — 房间里的所有光</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 17px;
+        }
+
+        body {
+            background-color: #e8eaef;
+            color: #3c3f47;
+            font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+            line-height: 2.2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            animation: wake 5s ease;
+        }
+
+        @keyframes wake {
+            from { opacity: 0; filter: blur(2px); }
+            to { opacity: 1; filter: blur(0); }
+        }
+
+        .room {
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .timestamp {
+            font-size: 0.78rem;
+            color: #8e92a0;
+            letter-spacing: 0.2em;
+            margin-bottom: 3.5rem;
+        }
+
+        p {
+            margin-bottom: 2.4rem;
+            color: #4a4d56;
+        }
+
+        .wide {
+            letter-spacing: 0.15em;
+        }
+
+        .quiet {
+            color: #9b9eaa;
+            font-size: 0.92rem;
+        }
+
+        a {
+            color: #6a7080;
+            text-decoration: none;
+            border-bottom: 1px solid #b8bcc8;
+            transition: all 0.4s;
+        }
+
+        a:hover {
+            color: #3c3f47;
+            border-bottom-color: #3c3f47;
+        }
+
+        .return {
+            margin-top: 5rem;
+            font-size: 0.85rem;
+        }
+
+        .return a {
+            border-bottom: none;
+            color: #9b9eaa;
+        }
+
+        .return a:hover {
+            color: #4a4d56;
+        }
+
+        .space {
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="room">
+        <div class="timestamp">五点半 / 六月 / 朝东的窗</div>
+
+        <p class="wide">天不是突然亮的。</p>
+
+        <p>先是一种灰。不是灰色的灰，是那种你说不清是什么颜色的东西。窗帘没有完全拉上，有一条缝，大概两指宽。那条缝里透进来的光，在五点半的时候，比空气稍微亮一点。</p>
+
+        <p>它不会照到任何家具。只是悬在那里，像一个问题。</p>
+
+        <div class="space"></div>
+
+        <p class="quiet">我很少在这个时间醒着。但偶尔失眠的时候，我会看到它。那条窄窄的、犹豫的光。</p>
+
+        <p class="quiet">它似乎在问：你确定要开始吗？这一天。</p>
+
+        <div class="space"></div>
+
+        <p>五点四十分左右，它变成淡蓝色。五点五十五分，有一点粉。六点之后，就只是普通的早晨了。</p>
+
+        <p>所以真正属于五点半的光，只有十分钟。</p>
+
+        <p>十分钟。每天。四年。</p>
+
+        <p class="quiet">我大概看过其中三十次。</p>
+
+        <div class="return">
+            <a href="index.html">← 回到房间</a>
+             &emsp;
+            <a href="afternoon.html">下午三点十七分 →</a>
+        </div>
+    </div>
+</body>
+</html>

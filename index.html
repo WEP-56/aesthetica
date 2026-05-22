@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI SHOWCASE // MODEL ATLAS</title>
+  <style>
+    :root {
+      --white: #f5f3ef;
+      --ink: #111010;
+      --muted: #7e7974;
+      --border: rgba(17, 16, 16, 0.12);
+      --gemini-accent: #e8e0ff;
+      --gemini-text: #4a3a8a;
+      --claude-accent: #d4ecd4;
+      --claude-text: #1a4a1a;
+      --gpt-accent: #ffecd4;
+      --gpt-text: #7a3a0a;
+      --deepseek-accent: #d7eefc;
+      --deepseek-text: #22486a;
+      --minimax-accent: #d8efe9;
+      --minimax-text: #24605b;
+      --kimi-accent: #ebeff3;
+      --kimi-text: #4f5c66;
+      --seed-accent: #ffe9d4;
+      --seed-text: #8c4d1f;
+      --qwen-accent: #f0ddff;
+      --qwen-text: #7646a8;
+      --pending-accent: rgba(17, 16, 16, 0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: var(--white);
+      color: var(--ink);
+      font-family: "DM Mono", "Courier New", monospace;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 72px 48px 100px;
+    }
+
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      gap: 32px;
+      align-items: flex-start;
+      padding-bottom: 32px;
+      margin-bottom: 64px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .masthead h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(44px, 6vw, 80px);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin-top: 16px;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .masthead-right {
+      text-align: right;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      line-height: 1.8;
+      margin-top: 6px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scroll-snap-type: x proximity;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(17, 16, 16, 0.28) transparent;
+    }
+
+    .grid::-webkit-scrollbar { height: 10px; }
+    .grid::-webkit-scrollbar-thumb {
+      background: rgba(17, 16, 16, 0.24);
+      border-radius: 999px;
+    }
+
+    .column {
+      flex: 0 0 clamp(260px, 24vw, 320px);
+      min-height: 520px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.48);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      scroll-snap-align: start;
+    }
+
+    .column:hover { transform: translateY(-2px); }
+    .grid:hover .column { opacity: 0.55; }
+    .grid:hover .column:hover { opacity: 1; }
+
+    .column-header { margin-bottom: 28px; }
+
+    .model-label {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .col-gemini .model-label {
+      background: var(--gemini-accent);
+      color: var(--gemini-text);
+    }
+    .col-claude .model-label {
+      background: var(--claude-accent);
+      color: var(--claude-text);
+    }
+    .col-gpt .model-label {
+      background: var(--gpt-accent);
+      color: var(--gpt-text);
+    }
+    .col-deepseek .model-label {
+      background: var(--deepseek-accent);
+      color: var(--deepseek-text);
+    }
+    .col-minimax .model-label {
+      background: var(--minimax-accent);
+      color: var(--minimax-text);
+    }
+    .col-kimi .model-label {
+      background: var(--kimi-accent);
+      color: var(--kimi-text);
+    }
+    .col-seed .model-label {
+      background: var(--seed-accent);
+      color: var(--seed-text);
+    }
+    .col-qwen .model-label {
+      background: var(--qwen-accent);
+      color: var(--qwen-text);
+    }
+    .col-pending .model-label {
+      background: var(--pending-accent);
+      color: var(--muted);
+    }
+
+    .column-header h2 {
+      font-family: Georgia, serif;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .column-header .tagline {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .model-note {
+      margin-top: 10px;
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .page-list {
+      list-style: none;
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .page-item a {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 14px 0;
+      text-decoration: none;
+      color: var(--ink);
+      border-bottom: 1px solid var(--border);
+      transition: padding-left 0.2s ease, opacity 0.2s ease;
+    }
+
+    .page-item a:hover { padding-left: 8px; }
+
+    .page-item.pending a {
+      opacity: 0.36;
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .page-num {
+      min-width: 24px;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .page-info { flex: 1; }
+
+    .page-title {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .page-desc {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+    }
+
+    .page-arrow {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .page-item a:hover .page-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .pending-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 3px 6px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .footer {
+      margin-top: 72px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+    }
+
+    @media (max-width: 900px) {
+      .masthead {
+        flex-direction: column;
+      }
+
+      .masthead-right {
+        text-align: left;
+        white-space: normal;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 56px 20px 72px;
+      }
+
+      .column {
+        min-height: 460px;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="masthead">
+      <div class="masthead-left">
+        <h1>Model<br>Atlas</h1>
+        <p class="subtitle">Eight live entries and four placeholders</p>
+      </div>
+      <div class="masthead-right">
+        LOCAL ROOT ENTRY<br>
+        MODEL FOLDERS ONLINE<br>
+        WORK IN PROGRESS
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="column col-gemini">
+        <div class="column-header">
+          <span class="model-label">Gemini</span>
+          <h2>Cyber<br>Organism</h2>
+          <div class="tagline">Main index for the Gemini folder</div>
+          <div class="model-note">Archive entry for the Gemini works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="gemini/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Gemini directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-claude">
+        <div class="column-header">
+          <span class="model-label">Claude</span>
+          <h2>Precision<br>Organism</h2>
+          <div class="tagline">Main index for the Claude folder</div>
+          <div class="model-note">Archive entry for the Claude works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="claude/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Claude directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-gpt">
+        <div class="column-header">
+          <span class="model-label">GPT</span>
+          <h2>Digital<br>Rites</h2>
+          <div class="tagline">Main index for the GPT folder</div>
+          <div class="model-note">Archive entry for the GPT works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="gpt/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the GPT directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-deepseek">
+        <div class="column-header">
+          <span class="model-label">DeepSeek</span>
+          <h2>Algorithmic<br>Zen</h2>
+          <div class="tagline">Main index for the DeepSeek folder</div>
+          <div class="model-note">Archive entry for the DeepSeek works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="deepseek/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the DeepSeek directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-minimax">
+        <div class="column-header">
+          <span class="model-label">MiniMax</span>
+          <h2>Tidal<br>Ebb</h2>
+          <div class="tagline">Main index for the MiniMax folder</div>
+          <div class="model-note">Archive entry for the MiniMax works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="minimax/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the MiniMax directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-pending">
+        <div class="column-header">
+          <span class="model-label">GLM</span>
+          <h2>Reserved<br>Slot</h2>
+          <div class="tagline">Placeholder for work in progress</div>
+          <div class="model-note">No public entry yet.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item pending">
+            <a href="#">
+              <span class="page-num">--</span>
+              <span class="page-info">
+                <span class="page-title">Pending</span>
+                <span class="page-desc">This slot is still being built</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+        <span class="pending-badge">In progress</span>
+      </div>
+
+      <div class="column col-seed">
+        <div class="column-header">
+          <span class="model-label">Seed</span>
+          <h2>Ephemeral<br>Breath</h2>
+          <div class="tagline">Main index for the Seed folder</div>
+          <div class="model-note">Archive entry for the Seed works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="seed/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Seed directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-qwen">
+        <div class="column-header">
+          <span class="model-label">Qwen</span>
+          <h2>Ephemeris</h2>
+          <div class="tagline">Main index for the Qwen folder</div>
+          <div class="model-note">Archive entry for the Qwen works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="Qwen/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Qwen directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-kimi">
+        <div class="column-header">
+          <span class="model-label">Kimi</span>
+          <h2>Attenuated<br>Presence</h2>
+          <div class="tagline">Main index for the Kimi folder</div>
+          <div class="model-note">Archive entry for the Kimi works.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item">
+            <a href="kimi/index.html">
+              <span class="page-num">00</span>
+              <span class="page-info">
+                <span class="page-title">Index</span>
+                <span class="page-desc">Open the Kimi directory</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="column col-pending">
+        <div class="column-header">
+          <span class="model-label">Grok</span>
+          <h2>Reserved<br>Slot</h2>
+          <div class="tagline">Placeholder for work in progress</div>
+          <div class="model-note">No public entry yet.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item pending">
+            <a href="#">
+              <span class="page-num">--</span>
+              <span class="page-info">
+                <span class="page-title">Pending</span>
+                <span class="page-desc">This slot is still being built</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+        <span class="pending-badge">In progress</span>
+      </div>
+
+      <div class="column col-pending">
+        <div class="column-header">
+          <span class="model-label">Mimo</span>
+          <h2>Reserved<br>Slot</h2>
+          <div class="tagline">Placeholder for work in progress</div>
+          <div class="model-note">No public entry yet.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item pending">
+            <a href="#">
+              <span class="page-num">--</span>
+              <span class="page-info">
+                <span class="page-title">Pending</span>
+                <span class="page-desc">This slot is still being built</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+        <span class="pending-badge">In progress</span>
+      </div>
+
+      <div class="column col-pending">
+        <div class="column-header">
+          <span class="model-label">Llama</span>
+          <h2>Reserved<br>Slot</h2>
+          <div class="tagline">Placeholder for work in progress</div>
+          <div class="model-note">No public entry yet.</div>
+        </div>
+        <ul class="page-list">
+          <li class="page-item pending">
+            <a href="#">
+              <span class="page-num">--</span>
+              <span class="page-info">
+                <span class="page-title">Pending</span>
+                <span class="page-desc">This slot is still being built</span>
+              </span>
+              <span class="page-arrow">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+        <span class="pending-badge">In progress</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>MODEL ATLAS / ROOT DIRECTORY / 2026</div>
+      <div>Eight live entries, four reserved slots</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间尘埃</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            overflow: hidden;
+            height: 100vh;
+            transition: background-color 10s ease;
+            cursor: crosshair;
+        }
+
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transition: opacity 20s ease;
+        }
+
+        .fragment {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 2s ease, transform 1.5s ease, text-shadow 0.5s ease;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .fragment.visible {
+            opacity: 0.4;
+            pointer-events: auto;
+        }
+
+        .fragment.collected {
+            opacity: 0.7;
+            transform: scale(1.1);
+        }
+
+        .fragment.faded {
+            opacity: 0.15;
+        }
+
+        .text-fragment {
+            font-size: 15px;
+            color: #2d3436; /* 深灰色，对比度显著提高 */
+            max-width: 220px;
+            line-height: 1.7;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* 添加白色外发光，让文字从背景中"浮"出来 */
+            letter-spacing: 0.5px;
+        }
+
+        .shape-fragment {
+            border-radius: 50%;
+            background-color: rgba(100, 100, 100, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+        }
+
+        .line-fragment {
+            height: 1.5px;
+            background-color: rgba(70, 70, 70, 0.4);
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: #495057;
+            opacity: 0.6;
+            transition: opacity 2s ease;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        #collected-count {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: #6c757d;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        .door {
+            position: fixed;
+            bottom: 50px;
+            width: 70px;
+            height: 110px;
+            border: 1.5px solid rgba(100, 100, 100, 0.3);
+            border-radius: 35px 35px 0 0;
+            opacity: 0.3;
+            transition: opacity 1.5s ease, border-color 1s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #495057;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        .door:hover {
+            opacity: 0.7;
+            border-color: rgba(100, 100, 100, 0.5);
+        }
+
+        #door-left {
+            left: 50px;
+        }
+
+        #door-right {
+            right: 50px;
+        }
+
+        #door-center {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="background"></div>
+    
+    <div id="collected-count">已收集: 0 片记忆</div>
+    
+    <div id="hint">
+        移动鼠标，等待记忆浮现<br>
+        点击收集它们
+    </div>
+
+    <div class="door" id="door-left" onclick="location.href='afternoon.html'">
+        午后
+    </div>
+    
+    <div class="door" id="door-center" onclick="location.href='rain.html'">
+        雨天
+    </div>
+    
+    <div class="door" id="door-right" onclick="location.href='evening.html'">
+        傍晚
+    </div>
+
+    <script>
+        // 记忆碎片库
+        const fragments = [
+            { type: 'text', content: '阳光在桌面上移动的速度，和时针一样慢' },
+            { type: 'text', content: '一杯水放凉需要的时间，是十七分钟' },
+            { type: 'text', content: '风吹过窗帘时，它会记住风的形状' },
+            { type: 'text', content: '旧毛衣上还留着去年冬天的温度' },
+            { type: 'text', content: '书页翻动的声音，像时间在呼吸' },
+            { type: 'text', content: '有些话，只说给空气听了' },
+            { type: 'text', content: '影子在下午三点的时候，最温柔' },
+            { type: 'text', content: '灰尘在阳光里跳舞，没有人看见' },
+            { type: 'text', content: '茶凉了，可以再续。有些时刻，不行' },
+            { type: 'text', content: '窗外的云，刚刚变成了一只兔子' },
+            { type: 'text', content: '你发呆的时候，时间也在发呆' },
+            { type: 'text', content: '有些瞬间，只有你自己知道它有多重要' },
+            { type: 'shape', size: 20 },
+            { type: 'shape', size: 35 },
+            { type: 'shape', size: 15 },
+            { type: 'line', length: 100 },
+            { type: 'line', length: 150 },
+            { type: 'line', length: 80 }
+        ];
+
+        let collectedFragments = [];
+        let activeFragments = [];
+        let lastVisitTime = localStorage.getItem('lastVisitTime');
+        let storedFragments = JSON.parse(localStorage.getItem('collectedFragments') || '[]');
+
+        // 计算记忆褪色程度
+        function calculateFadeLevel() {
+            if (!lastVisitTime) return 0;
+            const hoursPassed = (Date.now() - parseInt(lastVisitTime)) / (1000 * 60 * 60);
+            return Math.min(hoursPassed / 24, 1); // 24小时后完全褪色
+        }
+
+        // 应用褪色效果
+        function applyFadeEffect() {
+            const fadeLevel = calculateFadeLevel();
+            storedFragments = storedFragments.map(fragment => ({
+                ...fragment,
+                opacity: Math.max(0.15, fragment.opacity - fadeLevel * 0.5)
+            })).filter(fragment => fragment.opacity > 0.15);
+            
+            localStorage.setItem('collectedFragments', JSON.stringify(storedFragments));
+            collectedFragments = [...storedFragments];
+            updateCollectedCount();
+        }
+
+        // 创建记忆碎片
+        function createFragment(fragmentData, isCollected = false) {
+            const fragment = document.createElement('div');
+            fragment.className = 'fragment';
+            
+            if (fragmentData.type === 'text') {
+                fragment.className += ' text-fragment';
+                fragment.textContent = fragmentData.content;
+            } else if (fragmentData.type === 'shape') {
+                fragment.className += ' shape-fragment';
+                fragment.style.width = fragmentData.size + 'px';
+                fragment.style.height = fragmentData.size + 'px';
+            } else if (fragmentData.type === 'line') {
+                fragment.className += ' line-fragment';
+                fragment.style.width = fragmentData.length + 'px';
+            }
+
+            // 随机位置
+            fragment.style.left = Math.random() * (window.innerWidth - 250) + 50 + 'px';
+            fragment.style.top = Math.random() * (window.innerHeight - 250) + 50 + 'px';
+
+            if (isCollected) {
+                fragment.className += ' collected';
+                fragment.style.opacity = fragmentData.opacity;
+                fragment.style.left = fragmentData.x + 'px';
+                fragment.style.top = fragmentData.y + 'px';
+            } else {
+                // 随机延迟显示
+                setTimeout(() => {
+                    fragment.className += ' visible';
+                    activeFragments.push(fragment);
+                }, Math.random() * 8000);
+            }
+
+            fragment.addEventListener('click', () => {
+                if (!fragment.classList.contains('collected')) {
+                    collectFragment(fragment, fragmentData);
+                }
+            });
+
+            document.body.appendChild(fragment);
+            return fragment;
+        }
+
+        // 收集记忆碎片
+        function collectFragment(element, fragmentData) {
+            element.classList.remove('visible');
+            element.classList.add('collected');
+            
+            const collectedData = {
+                ...fragmentData,
+                x: parseFloat(element.style.left),
+                y: parseFloat(element.style.top),
+                opacity: 0.7,
+                collectedAt: Date.now()
+            };
+            
+            collectedFragments.push(collectedData);
+            localStorage.setItem('collectedFragments', JSON.stringify(collectedFragments));
+            updateCollectedCount();
+
+            // 从活跃列表中移除
+            activeFragments = activeFragments.filter(f => f !== element);
+        }
+
+        // 更新收集数量显示
+        function updateCollectedCount() {
+            document.getElementById('collected-count').textContent = 
+                `已收集: ${collectedFragments.length} 片记忆`;
+        }
+
+        // 定期生成新的记忆碎片
+        function generateFragments() {
+            setInterval(() => {
+                if (activeFragments.length < 6 && Math.random() > 0.25) {
+                    const randomFragment = fragments[Math.floor(Math.random() * fragments.length)];
+                    createFragment(randomFragment);
+                }
+            }, 4000);
+        }
+
+        // 缓慢变化背景
+        function animateBackground() {
+            const colors = [
+                'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                'linear-gradient(135deg, #f1f2f6 0%, #dfe4ea 100%)',
+                'linear-gradient(135deg, #ffffff 0%, #f1f2f6 100%)',
+                'linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%)',
+                'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)'
+            ];
+            
+            let colorIndex = 0;
+            
+            setInterval(() => {
+                colorIndex = (colorIndex + 1) % colors.length;
+                document.getElementById('background').style.background = colors[colorIndex];
+            }, 30000);
+        }
+
+        // 隐藏提示
+        setTimeout(() => {
+            document.getElementById('hint').style.opacity = '0';
+        }, 45000);
+
+        // 初始化
+        function init() {
+            applyFadeEffect();
+            
+            // 恢复之前收集的碎片
+            storedFragments.forEach(fragmentData => {
+                createFragment(fragmentData, true);
+            });
+
+            // 生成初始碎片
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    const randomFragment = fragments[Math.floor(Math.random() * fragments.length)];
+                    createFragment(randomFragment);
+                }, i * 1500);
+            }
+
+            generateFragments();
+            animateBackground();
+
+            // 保存本次访问时间
+            localStorage.setItem('lastVisitTime', Date.now().toString());
+        }
+
+        // 鼠标移动时，附近的碎片会明显清晰
+        document.addEventListener('mousemove', (e) => {
+            activeFragments.forEach(fragment => {
+                const rect = fragment.getBoundingClientRect();
+                const distance = Math.sqrt(
+                    Math.pow(e.clientX - (rect.left + rect.width/2), 2) + 
+                    Math.pow(e.clientY - (rect.top + rect.height/2), 2)
+                );
+                
+                if (distance < 200) {
+                    // 距离越近越清晰，最大到0.8的不透明度
+                    const newOpacity = Math.min(0.8, 0.4 + (200 - distance) / 400);
+                    fragment.style.opacity = newOpacity;
+                    
+                    // 文字碎片在靠近时会有更强的发光效果
+                    if (fragment.classList.contains('text-fragment')) {
+                        fragment.style.textShadow = `0 0 ${(200 - distance) / 10}px rgba(255, 255, 255, 0.9)`;
+                    }
+                } else {
+                    fragment.style.opacity = 0.4;
+                    if (fragment.classList.contains('text-fragment')) {
+                        fragment.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.8)';
+                    }
+                }
+            });
+        });
+
+        init();
+    </script>
+</body>
+</html>

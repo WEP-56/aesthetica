@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雨天 | 时间尘埃</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            overflow: hidden;
+            height: 100vh;
+            background: linear-gradient(to bottom, #4b6cb7 0%, #182848 100%);
+            cursor: default;
+        }
+
+        #window {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 70%;
+            border: 20px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .water-trail {
+            position: absolute;
+            width: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            animation: run-down 8s ease-in infinite;
+        }
+
+        @keyframes run-down {
+            0% { height: 0; opacity: 0; }
+            10% { height: 20px; opacity: 0.7; }
+            100% { height: 200px; opacity: 0; transform: translateY(300px); }
+        }
+
+        .rain-memory {
+            position: absolute;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: opacity 8s ease;
+            max-width: 150px;
+            line-height: 1.7;
+        }
+
+        .rain-memory.visible {
+            opacity: 0.35;
+        }
+
+        #back {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            opacity: 0.3;
+            cursor: pointer;
+            transition: opacity 1s ease;
+        }
+
+        #back:hover {
+            opacity: 0.7;
+        }
+
+        #sound-hint {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="window"></div>
+    <div id="back" onclick="location.href='index.html'">← 返回客厅</div>
+    <div id="sound-hint">戴上耳机，效果更好</div>
+
+    <script>
+        const rainMemories = [
+            "下雨天适合睡觉，也适合想念",
+            "雨水打在玻璃上的声音，是最好的白噪音",
+            "你曾经在雨中等过一个人，等了很久很久",
+            "潮湿的空气里，有泥土和青草的味道",
+            "屋檐下的水滴，一滴，一滴，数着时间",
+            "被雨困住的下午，一本书就是整个世界",
+            "雨伞边缘的水珠，连成了一串水晶",
+            "雨后的天空，会出现淡淡的彩虹",
+            "有些故事，只发生在下雨天",
+            "雨停了，但心里的雨还在下"
+        ];
+
+        // 创建雨滴
+        function createRaindrops() {
+            setInterval(() => {
+                const raindrop = document.createElement('div');
+                raindrop.className = 'raindrop';
+                raindrop.style.left = Math.random() * 100 + '%';
+                raindrop.style.height = (10 + Math.random() * 20) + 'px';
+                raindrop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+                raindrop.style.opacity = 0.3 + Math.random() * 0.4;
+                
+                document.body.appendChild(raindrop);
+                
+                setTimeout(() => {
+                    document.body.removeChild(raindrop);
+                }, 1000);
+            }, 50);
+        }
+
+        // 创建玻璃上的水痕
+        function createWaterTrails() {
+            setInterval(() => {
+                const trail = document.createElement('div');
+                trail.className = 'water-trail';
+                trail.style.left = Math.random() * 100 + '%';
+                trail.style.top = Math.random() * 50 + '%';
+                trail.style.animationDelay = Math.random() * 3 + 's';
+                
+                document.getElementById('window').appendChild(trail);
+                
+                setTimeout(() => {
+                    document.getElementById('window').removeChild(trail);
+                }, 8000);
+            }, 2000);
+        }
+
+        // 显示雨天记忆
+        function showRainMemories() {
+            let memoryIndex = 0;
+            
+            setInterval(() => {
+                const memory = document.createElement('div');
+                memory.className = 'rain-memory';
+                memory.textContent = rainMemories[memoryIndex];
+                memory.style.left = (10 + Math.random() * 80) + '%';
+                memory.style.top = (10 + Math.random() * 80) + '%';
+                
+                document.getElementById('window').appendChild(memory);
+                
+                setTimeout(() => {
+                    memory.classList.add('visible');
+                }, 100);
+                
+                setTimeout(() => {
+                    memory.style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('window').removeChild(memory);
+                    }, 8000);
+                }, 20000);
+                
+                memoryIndex = (memoryIndex + 1) % rainMemories.length;
+            }, 10000);
+        }
+
+        function init() {
+            createRaindrops();
+            createWaterTrails();
+            showRainMemories();
+        }
+
+        init();
+    </script>
+</body>
+</html>

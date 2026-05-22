@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房间里的所有光</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 17px;
+        }
+
+        body {
+            background-color: #f6f4f0;
+            color: #2c2c2c;
+            font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+            line-height: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            animation: fadeIn 3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .room {
+            max-width: 560px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            margin-bottom: 4rem;
+            color: #4a4a4a;
+        }
+
+        p {
+            margin-bottom: 1.8rem;
+            text-indent: 2em;
+            color: #3a3a3a;
+        }
+
+        p:first-of-type {
+            text-indent: 0;
+        }
+
+        .note {
+            margin-top: 4rem;
+            font-size: 0.82rem;
+            color: #999;
+            line-height: 1.9;
+            text-indent: 0;
+            border-left: 1px solid #ddd;
+            padding-left: 1.2rem;
+        }
+
+        a {
+            color: #6b7c6e;
+            text-decoration: none;
+            border-bottom: 1px solid #c5cec7;
+            transition: border-color 0.3s, color 0.3s;
+        }
+
+        a:hover {
+            color: #3d4f40;
+            border-bottom-color: #3d4f40;
+        }
+
+        .entries {
+            margin-top: 5rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e2dc;
+        }
+
+        .entries p {
+            text-indent: 0;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .entries a {
+            border-bottom: none;
+        }
+
+        .entries a:hover {
+            border-bottom: 1px solid #3d4f40;
+        }
+
+        .time {
+            display: inline-block;
+            width: 8em;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="room">
+        <h1>房间里的所有光</h1>
+
+        <p>我在这间公寓住了四年。朝南，六楼，两扇窗。</p>
+
+        <p>说不上什么时候开始的，我注意到光是不一样的。不只是亮和暗的区别。它有不同的重量，不同的温度，不同的声音——如果光有声音的话。</p>
+
+        <p>有些光让你想说话。有些光让你觉得说什么都没必要。</p>
+
+        <p>后来我开始记录它们。不是为了什么目的。只是觉得，如果我不写下来，好像那些时刻就不算真的发生过。光来过，落在地板上、墙上、我的手臂上。然后消失了。如果没有人记得，它和从未存在过有什么区别？</p>
+
+        <p>所以这是那些光的记录。不完整。也不准确。但是真的。</p>
+
+        <p class="note">这个房间有两扇窗。朝南的那扇大一些，早上九点之后会有直射光进来。朝东的那扇小一些，只能看到对面楼的墙壁，和一小块天空。我大部分时间坐在南窗旁边。记录也是。</p>
+
+        <div class="entries">
+            <p><span class="time">天还没亮的时候</span><a href="dawn.html">五点半</a></p>
+            <p><span class="time">太阳最高的时候</span><a href="afternoon.html">下午三点十七分</a></p>
+            <p><span class="time">看不见太阳的日子</span><a href="rain.html">雨</a></p>
+            <p><span class="time">所有灯都关了以后</span><a href="screen.html">蓝光</a></p>
+            <p><span class="time">光照到东西以后</span><a href="shadow.html">影子的形状</a></p>
+            <p><span class="time">再也进不来的光</span><a href="gone.html">那扇被封住的窗</a></p>
+        </div>
+    </div>
+</body>
+</html>

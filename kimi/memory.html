@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旧物 — 余温</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes drawerOpen {
+  from { transform: translateY(0); }
+  to { transform: translateY(-120px); }
+}
+
+@keyframes drawerClose {
+  from { transform: translateY(-120px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes itemAppear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dustFloat {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  25% { transform: translate(5px, -8px); opacity: 0.5; }
+  50% { transform: translate(-3px, -12px); opacity: 0.2; }
+  75% { transform: translate(8px, -5px); opacity: 0.4; }
+}
+
+body {
+  background: #0f0e0c;
+  color: #b8a898;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.back-link {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(140,130,120,0.3);
+  text-decoration: none;
+  transition: color 2s ease;
+}
+
+.back-link:hover {
+  color: rgba(180,170,160,0.6);
+}
+
+.drawer-container {
+  position: relative;
+  width: 400px;
+  height: 300px;
+  perspective: 800px;
+}
+
+.drawer {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  height: 100px;
+  background: linear-gradient(180deg, #2a2018 0%, #1a1510 100%);
+  border: 2px solid #3a3028;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+}
+
+.drawer-handle {
+  position: absolute;
+  top: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 8px;
+  background: #4a4038;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.drawer.open {
+  transform: translateX(-50%) translateY(-140px);
+}
+
+.drawer-interior {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 130px;
+  background: #1a1410;
+  border: 1px solid #2a2018;
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+}
+
+.drawer-shadow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
+  height: 20px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%);
+}
+
+/* 抽屉里的物品 */
+.item {
+  position: absolute;
+  cursor: pointer;
+  transition: transform 0.8s ease, opacity 1s ease;
+  opacity: 0;
+}
+
+.drawer.open ~ .drawer-interior .item,
+.drawer.open + .drawer-interior .item {
+  opacity: 1;
+}
+
+/* 旧照片 */
+.photo {
+  left: 30px;
+  top: 30px;
+  width: 60px;
+  height: 75px;
+  background: #d4c8b8;
+  border: 3px solid #c4b8a8;
+  transform: rotate(-8deg);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.photo::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  background: linear-gradient(135deg, #b8a898 0%, #a09080 100%);
+  opacity: 0.6;
+}
+
+.photo:hover {
+  transform: rotate(-5deg) scale(1.1);
+}
+
+/* 怀表 */
+.pocket-watch {
+  right: 40px;
+  top: 25px;
+  width: 50px;
+  height: 50px;
+  border: 3px solid #8a7a60;
+  border-radius: 50%;
+  background: radial-gradient(circle, #c4b8a8 0%, #a09080 100%);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.pocket-watch::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 18px;
+  background: #4a4030;
+  transform: translate(-50%, -100%) rotate(45deg);
+  transform-origin: bottom center;
+}
+
+.pocket-watch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background: #4a4030;
+  transform: translate(-50%, -100%) rotate(120deg);
+  transform-origin: bottom center;
+}
+
+.pocket-watch:hover {
+  transform: scale(1.1);
+}
+
+/* 信纸 */
+.letter {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 55px;
+  background: #e8ddd0;
+  border: 1px solid #c4b8a8;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+}
+
+.letter::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  right: 10px;
+  height: 2px;
+  background: #b8a898;
+  box-shadow: 0 8px 0 #b8a898, 0 16px 0 #b8a898;
+}
+
+.letter:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* 灰尘粒子 */
+.dust {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(180,170,150,0.4);
+  border-radius: 50%;
+  animation: dustFloat 8s ease-in-out infinite;
+}
+
+.dust:nth-child(1) { left: 20%; top: 30%; animation-delay: 0s; }
+.dust:nth-child(2) { left: 60%; top: 20%; animation-delay: 2s; }
+.dust:nth-child(3) { left: 80%; top: 50%; animation-delay: 4s; }
+.dust:nth-child(4) { left: 40%; top: 70%; animation-delay: 1s; }
+.dust:nth-child(5) { left: 10%; top: 60%; animation-delay: 3s; }
+
+/* 物品描述 */
+.item-desc {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: rgba(160,150,140,0.4);
+  text-align: center;
+  line-height: 2;
+  opacity: 0;
+  transition: opacity 2s ease;
+  white-space: nowrap;
+}
+
+.item-desc.visible {
+  opacity: 1;
+}
+
+.title {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  letter-spacing: 8px;
+  color: rgba(140,130,120,0.3);
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← 返回</a>
+
+<div class="title">拉开抽屉</div>
+
+<div class="drawer-container">
+  <div class="drawer" id="drawer">
+    <div class="drawer-handle"></div>
+  </div>
+
+  <div class="drawer-interior">
+    <div class="item photo" data-desc="一张褪色的照片，边角卷曲"></div>
+    <div class="item pocket-watch" data-desc="怀表停在三点十七分"></div>
+    <div class="item letter" data-desc="一封未寄出的信"></div>
+    <div class="dust"></div>
+    <div class="dust"></div>
+    <div class="dust"></div>
+    <div class="dust"></div>
+    <div class="dust"></div>
+  </div>
+
+  <div class="drawer-shadow"></div>
+</div>
+
+<div class="item-desc" id="item-desc"></div>
+
+<script>
+const drawer = document.getElementById('drawer');
+const itemDesc = document.getElementById('item-desc');
+let isOpen = false;
+
+drawer.addEventListener('click', () => {
+  isOpen = !isOpen;
+  if (isOpen) {
+    drawer.classList.add('open');
+    itemDesc.textContent = '灰尘在光线中缓慢浮动';
+    itemDesc.classList.add('visible');
+  } else {
+    drawer.classList.remove('open');
+    itemDesc.classList.remove('visible');
+  }
+});
+
+// 物品悬停描述
+document.querySelectorAll('.item').forEach(item => {
+  item.addEventListener('mouseenter', () => {
+    const desc = item.getAttribute('data-desc');
+    if (desc) {
+      itemDesc.textContent = desc;
+      itemDesc.classList.add('visible');
+    }
+  });
+
+  item.addEventListener('mouseleave', () => {
+    if (isOpen) {
+      itemDesc.textContent = '灰尘在光线中缓慢浮动';
+    }
+  });
+});
+</script>
+
+</body>
+</html>

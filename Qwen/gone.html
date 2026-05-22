@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>那扇被封住的窗 — 房间里的所有光</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 17px;
+        }
+
+        body {
+            background-color: #f0ede6;
+            color: #3a3832;
+            font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+            line-height: 2.3;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+        }
+
+        .room {
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .timestamp {
+            font-size: 0.78rem;
+            color: #b0a898;
+            letter-spacing: 0.2em;
+            margin-bottom: 3.5rem;
+        }
+
+        p {
+            margin-bottom: 2.2rem;
+            color: #4a4740;
+        }
+
+        .last {
+            margin-top: 4rem;
+            color: #8a8478;
+            font-size: 0.95rem;
+        }
+
+        .wall {
+            margin: 3.5rem 0;
+            height: 120px;
+            background: #e2ddd4;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wall::before {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 60%;
+            border: 1px dashed #c8c0b4;
+            border-radius: 1px;
+        }
+
+        .wall-text {
+            font-size: 0.75rem;
+            color: #b5ad9f;
+            letter-spacing: 0.3em;
+            z-index: 1;
+        }
+
+        a {
+            color: #8a7e68;
+            text-decoration: none;
+            border-bottom: 1px solid #d0c8b8;
+            transition: all 0.3s;
+        }
+
+        a:hover {
+            color: #4a4030;
+            border-bottom-color: #4a4030;
+        }
+
+        .return {
+            margin-top: 5rem;
+            font-size: 0.85rem;
+        }
+
+        .return a {
+            border-bottom: none;
+            color: #b0a898;
+        }
+
+        .return a:hover {
+            color: #6a6458;
+        }
+
+        .end {
+            margin-top: 6rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ddd8d0;
+            font-size: 0.8rem;
+            color: #c0b8a8;
+            text-align: center;
+            letter-spacing: 0.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="room">
+        <div class="timestamp">那扇被封住的窗 / 不再 / 朝东</div>
+
+        <p>朝东的那扇窗，在第三年的时候被封住了。</p>
+
+        <p>不是我的决定。隔壁装修，在他们那面墙上做了整面的柜子，刚好挡住了我这边的窗。物业说没办法，那是他们的墙。我说光怎么办。他们说，你还有南窗啊。</p>
+
+        <p>他们说得很对。南窗更大，光线更好。从实用角度讲，封掉一扇小窗不算什么损失。</p>
+
+        <p>但那扇窗的光不是南窗的光能替代的。</p>
+
+        <div class="wall">
+            <span class="wall-text">窗在这里</span>
+        </div>
+
+        <p>东窗的光是早晨的光。它和南窗不一样——南窗的光是"照进来"的，东窗的光是"探进来"的。它很浅。只在窗台附近停留，从来不走到房间深处。像一个不太熟的客人，站在门口，不打算坐。</p>
+
+        <p>它照过的那些东西：窗台上的一盆已经死掉的多肉，一本翻到一半的《看不见的城市》，一只总是放在那里的玻璃杯。</p>
+
+        <p>窗被封住之后，那些东西还在。但它们的颜色变了。不是东西变了，是光变了。南窗的光从另一个角度照过来，那些东西看起来完全不同——更黄、更平、更旧。</p>
+
+        <p class="last">我现在明白了，光不是一种照明。光是一种关系。同一样东西，被不同的光照着，就是不同的东西。同一段记忆，被不同的光包裹着，就是不同的记忆。</p>
+
+        <p class="last">东窗的光已经两年没有来过了。但我有时候早上醒来的时候，还是会往那个方向看一眼。窗帘后面是一面墙。我知道。但我还是会看。</p>
+
+        <p class="last">习惯了的光，身体比眼睛记得更久。</p>
+
+        <div class="return">
+            <a href="shadow.html">← 影子的形状</a>
+             &emsp;
+            <a href="index.html">回到房间 →</a>
+        </div>
+
+        <div class="end">
+            房间里的所有光
+        </div>
+    </div>
+</body>
+</html>

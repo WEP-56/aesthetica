@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>针</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: radial-gradient(
+                ellipse at 50% 60%,
+                #2a3a4a 0%,
+                #1a2a3a 40%,
+                #0a1a2a 100%
+            );
+            font-family: "Courier New", "Lucida Console", monospace;
+            cursor: default;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 指南针 */
+        .compass {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        /* 外圈 */
+        .compass-ring {
+            position: absolute;
+            inset: 0;
+            border: 3px solid #8a8a7a;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                #e8e0d0 0%,
+                #d0c8b8 60%,
+                #b8b0a0 100%
+            );
+            box-shadow:
+                0 4px 20px rgba(0,0,0,0.3),
+                inset 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        /* 内圈 */
+        .compass-inner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid #9a9a8a;
+            border-radius: 50%;
+            background: linear-gradient(
+                180deg,
+                #f0e8d8 0%,
+                #e0d8c8 100%
+            );
+        }
+
+        /* 方向标记 */
+        .direction-mark {
+            position: absolute;
+            font-size: 10px;
+            color: #5a5a4a;
+        }
+
+        .direction-n { top: 20px; left: 50%; transform: translateX(-50%); }
+        .direction-s { bottom: 20px; left: 50%; transform: translateX(-50%); }
+        .direction-e { right: 22px; top: 50%; transform: translateY(-50%); }
+        .direction-w { left: 22px; top: 50%; transform: translateY(-50%); }
+
+        /* 指针 */
+        .needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70px;
+            height: 4px;
+            margin-top: -2px;
+            margin-left: -35px;
+            transform-origin: center center;
+            animation: spin 20s linear infinite;
+        }
+
+        .needle::before,
+        .needle::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 35px;
+            height: 4px;
+        }
+
+        .needle::before {
+            left: 0;
+            background: linear-gradient(
+                90deg,
+                #2a4a5a 0%,
+                #8a3030 100%
+            );
+            border-radius: 2px 0 0 2px;
+        }
+
+        .needle::after {
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                #eeeeee 0%,
+                #aaaaaa 100%
+            );
+            border-radius: 0 2px 2px 0;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 中心点 */
+        .compass-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(
+                circle,
+                #6a6a5a 0%,
+                #4a4a3a 100%
+            );
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* 罗盘文字 */
+        .compass-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            max-width: 250px;
+            margin-top: 100px;
+            cursor: pointer;
+        }
+
+        .compass-line {
+            font-size: 11px;
+            color: rgba(200,200,190,0.5);
+            line-height: 2.4;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .compass-text:hover .compass-line {
+            opacity: 0.8;
+        }
+
+        /* 淡出环 */
+        .fade-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 1px solid rgba(200,200,190,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .fade-ring.active {
+            animation: ringPulse 3s ease-out forwards;
+        }
+
+        @keyframes ringPulse {
+            0% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+
+        /* 进度环 */
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            pointer-events: none;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 1;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(200,200,190,0.1);
+        }
+
+        .progress-ring .progress {
+            stroke: rgba(200,200,190,0.3);
+            stroke-dasharray: 565.48;
+            stroke-dashoffset: 0;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        /* 返回链接 */
+        .back {
+            position: fixed;
+            top: 5%;
+            left: 5%;
+            font-size: 10px;
+            color: rgba(200,200,190,0.3);
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back:hover {
+            color: rgba(200,200,190,0.6);
+        }
+
+        /* 页码 */
+        .page-title {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+            font-size: 10px;
+            color: rgba(200,200,190,0.2);
+            letter-spacing: 3px;
+        }
+
+        /* 标题 */
+        .title {
+            position: fixed;
+            top: 5%;
+            right: 5%;
+            font-size: 10px;
+            color: rgba(200,200,190,0.2);
+            letter-spacing: 3px;
+            writing-mode: vertical-rl;
+        }
+
+        /* 浮尘粒子 */
+        .particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(200,200,190,0.2);
+            border-radius: 50%;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) { left: 20%; top: 30%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 70%; top: 50%; animation-delay: 3s; }
+        .particle:nth-child(3) { left: 40%; top: 70%; animation-delay: 6s; }
+        .particle:nth-child(4) { left: 80%; top: 20%; animation-delay: 9s; }
+        .particle:nth-child(5) { left: 15%; top: 60%; animation-delay: 12s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+            50% { transform: translateY(-30px) translateX(10px); opacity: 0.4; }
+        }
+
+        /* 文字消散 */
+        .fading .compass-line {
+            animation: textFade 10s ease forwards;
+        }
+
+        @keyframes textFade {
+            0% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back">返回</a>
+    <span class="title">潮汐信笺</span>
+
+    <div class="container">
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <div class="compass">
+            <div class="compass-ring"></div>
+            <div class="compass-inner">
+                <span class="direction-mark direction-n">北</span>
+                <span class="direction-mark direction-s">南</span>
+                <span class="direction-mark direction-e">东</span>
+                <span class="direction-mark direction-w">西</span>
+            </div>
+            <div class="needle"></div>
+            <div class="compass-center"></div>
+            <svg class="progress-ring" viewBox="0 0 180 180">
+                <circle class="bg" cx="90" cy="90" r="88"></circle>
+                <circle class="progress" id="progressCircle" cx="90" cy="90" r="88"></circle>
+            </svg>
+        </div>
+
+        <div class="fade-ring" id="fadeRing"></div>
+
+        <div class="compass-text" id="compassText">
+            <div class="compass-line">它曾经指向某个地方</div>
+            <div class="compass-line">现在却停在中间</div>
+            <div class="compass-line">不是坏了</div>
+            <div class="compass-line">只是不知道该往哪里去</div>
+        </div>
+    </div>
+
+    <span class="page-title">叁</span>
+
+    <script>
+        const compassText = document.getElementById('compassText');
+        const fadeRing = document.getElementById('fadeRing');
+        const progressCircle = document.getElementById('progressCircle');
+        let fadeProgress = 1;
+        let isHovering = false;
+        let fadeInterval;
+        const circumference = 2 * Math.PI * 88;
+
+        progressCircle.style.strokeDashoffset = 0;
+
+        compassText.addEventListener('mouseenter', () => {
+            isHovering = true;
+            cancelAnimationFrame(fadeInterval);
+            compassText.classList.remove('fading');
+            fadeProgress = 1;
+            updateProgress();
+            // 淡入文字
+            compassText.querySelectorAll('.compass-line').forEach((line, i) => {
+                setTimeout(() => {
+                    line.style.opacity = '0.8';
+                }, i * 300);
+            });
+            // 触发动画
+            fadeRing.classList.remove('active');
+            void fadeRing.offsetWidth;
+            fadeRing.classList.add('active');
+        });
+
+        compassText.addEventListener('mouseleave', () => {
+            isHovering = false;
+            compassText.classList.add('fading');
+            startFade();
+        });
+
+        function updateProgress() {
+            const offset = circumference * (1 - fadeProgress);
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function startFade() {
+            function fade() {
+                if (isHovering) return;
+
+                fadeProgress -= 0.002;
+                updateProgress();
+
+                if (fadeProgress > 0) {
+                    fadeInterval = requestAnimationFrame(fade);
+                }
+            }
+            fade();
+        }
+
+        // 初始自动开始消散
+        setTimeout(() => {
+            compassText.classList.add('fading');
+            startFade();
+            // 初始动画
+            fadeRing.classList.add('active');
+        }, 1500);
+    </script>
+
+<style>
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.inland-security-footer {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  right: 0;
+  width: fit-content;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tooltip-container {
+  position: relative;
+}
+
+.trigger-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.minimax-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 300;
+  color: #adadad;
+  text-decoration: none;
+}
+
+.minimax-link:visited {
+  color: #adadad;
+}
+
+.minimax-link:hover {
+  color: #666666;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 16px; /* 8px 内容间距 + 8px 用于鼠标移动的透明区域 */
+  font-size: 12px;
+  line-height: 17px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #171717;
+}
+
+/* 创建透明的连接区域，让鼠标可以平滑移动到 tooltip */
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.tooltip-container:hover .tooltip-content {
+  display: flex;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.beian-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #171717;
+}
+
+.beian-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 2px;
+}
+
+.underline-text {
+  color: #171717;
+  text-decoration: underline;
+}
+
+.underline-text:hover {
+  color: #000000;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .trigger-content {
+    background-color: transparent;
+  }
+
+  .minimax-link,
+  .minimax-link:visited {
+    color: #666666;
+  }
+
+  .minimax-link:hover {
+    color: #adadad;
+  }
+
+  .tooltip-content {
+    background-color: #262626;
+    color: #ededed;
+  }
+
+  .beian-link,
+  .underline-text {
+    color: #ededed;
+  }
+
+  .underline-text:hover {
+    color: #ffffff;
+  }
+}
+
+</style>
+<div class="inland-security-footer">
+  <div class="tooltip-container">
+    <div class="trigger-content">
+      <a href="https://www.minimaxi.com/" target="_blank" rel="noreferrer" class="minimax-link">
+        <span>© 2026 MiniMax</span>
+      </a>
+    </div>
+    <div class="tooltip-content">
+      <section class="info-section">
+        <span>上海稀宇科技有限公司</span>
+      </section>
+
+      <section class="info-section">
+        <a class="beian-link" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179" target="_blank" rel="noreferrer">
+          <img alt="hailuo-beian-icon" src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png" class="beian-icon">
+          <span class="underline-text">沪公网安备31010402010179号</span>
+        </a>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" class="underline-text">
+          沪ICP备2023003282号-38
+        </a>
+      </section>
+
+      <section class="info-section">
+        <span>模型名称：MiniMax</span>
+        <span>备案号：Shanghai-MiniMax-202505230046</span>
+      </section>
+
+      <section class="info-section">
+        <a href="https://agent.minimaxi.com/doc/zh/terms-of-service.html" target="_blank" rel="noreferrer" class="underline-text">
+          用户协议
+        </a>
+        <a href="https://agent.minimaxi.com/doc/zh/privacy-policy.html" target="_blank" rel="noreferrer" class="underline-text">
+          隐私政策
+        </a>
+      </section>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

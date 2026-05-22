@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>午后 | 时间尘埃</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            overflow: hidden;
+            height: 100vh;
+            background: linear-gradient(to bottom, #fff9e6 0%, #ffeaa7 100%);
+            cursor: default;
+        }
+
+        #sunbeam {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 200, 0.3) 0%, rgba(255, 255, 200, 0) 100%);
+            transform: skewX(-10deg);
+            transform-origin: top right;
+            animation: sunbeam-move 120s linear infinite;
+        }
+
+        @keyframes sunbeam-move {
+            0% { transform: skewX(-10deg); }
+            50% { transform: skewX(-5deg); }
+            100% { transform: skewX(-10deg); }
+        }
+
+        .dust-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: rgba(255, 255, 200, 0.6);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30px) translateX(10px); }
+            50% { transform: translateY(-10px) translateX(-10px); }
+            75% { transform: translateY(-40px) translateX(5px); }
+        }
+
+        .memory {
+            position: absolute;
+            font-size: 13px;
+            color: #b89d5f;
+            opacity: 0;
+            transition: opacity 5s ease;
+            max-width: 180px;
+            line-height: 1.8;
+        }
+
+        .memory.visible {
+            opacity: 0.4;
+        }
+
+        #back {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-size: 11px;
+            color: #c9a96e;
+            opacity: 0.3;
+            cursor: pointer;
+            transition: opacity 1s ease;
+        }
+
+        #back:hover {
+            opacity: 0.7;
+        }
+
+        #clock {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            font-size: 24px;
+            color: #d4b86a;
+            opacity: 0.2;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="sunbeam"></div>
+    <div id="clock"></div>
+    <div id="back" onclick="location.href='index.html'">← 返回客厅</div>
+
+    <script>
+        const afternoonMemories = [
+            "蝉鸣是夏天的背景音，你听着听着就睡着了",
+            "电风扇转啊转，把时间也吹得慢了下来",
+            "桌子上的西瓜，最甜的那一口总是留给你",
+            "阳光穿过树叶，在地上画出跳动的光斑",
+            "作业本上的字迹，被汗水晕开了一点点",
+            "奶奶的蒲扇，扇出了整个童年的夏天",
+            "冰棒融化的速度，总是比你吃的快",
+            "收音机里的评书，说到了最精彩的地方",
+            "猫在窗台上打盹，尾巴偶尔轻轻扫一下",
+            "晾在绳子上的衣服，有阳光的味道"
+        ];
+
+        // 创建灰尘粒子
+        function createDustParticles() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'dust-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                document.body.appendChild(particle);
+            }
+        }
+
+        // 显示记忆
+        function showMemories() {
+            let memoryIndex = 0;
+            
+            setInterval(() => {
+                const memory = document.createElement('div');
+                memory.className = 'memory';
+                memory.textContent = afternoonMemories[memoryIndex];
+                memory.style.left = (20 + Math.random() * 60) + '%';
+                memory.style.top = (20 + Math.random() * 60) + '%';
+                
+                document.body.appendChild(memory);
+                
+                setTimeout(() => {
+                    memory.classList.add('visible');
+                }, 100);
+                
+                setTimeout(() => {
+                    memory.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(memory);
+                    }, 5000);
+                }, 15000);
+                
+                memoryIndex = (memoryIndex + 1) % afternoonMemories.length;
+            }, 8000);
+        }
+
+        // 更新时钟
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+
+        function init() {
+            createDustParticles();
+            showMemories();
+            updateClock();
+            setInterval(updateClock, 60000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

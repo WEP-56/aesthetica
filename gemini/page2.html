@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENT BIOME // ARCHIVE 02</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { 
+            width: 100%; height: 100%; overflow: hidden; 
+            background: #000; color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* 核心画布：使用 CSS 特效让低像素矩阵产生丝滑的细胞液膜质感 */
+        canvas { 
+            position: absolute; top: 0; left: 0; 
+            width: 100%; height: 100%;
+            z-index: 1;
+            image-rendering: pixelated;
+            filter: contrast(1.2) brightness(1.1);
+        }
+
+        /* 极简主义仪表盘 UI */
+        .ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; pointer-events: none; padding: 40px;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .meta-info { font-size: 11px; color: #555; line-height: 1.6; }
+        .meta-info span { color: #fff; }
+        
+        .live-stats {
+            font-size: 11px; color: #00ffcc; opacity: 0.8;
+            margin-top: 10px; font-family: monospace;
+        }
+
+        .back-btn {
+            color: #888; font-size: 12px; text-decoration: none;
+            letter-spacing: 2px; pointer-events: auto; width: fit-content;
+            transition: color 0.3s;
+        }
+        .back-btn:hover { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <canvas id="biomeCanvas"></canvas>
+
+    <div class="ui-layer">
+        <div class="meta-info">
+            <span>MODULE 02: EMERGENT BIOME</span><br>
+            ALGORITHM: GRAY-SCOTT REACTION-DIFFUSION MODEL (PARTIAL DIFFERENTIAL EQUATIONS)<br>
+            [ INTERACTION: CLICK & DRAG TO INJECT BIOMASS NUTRIENTS ]
+            <div class="live-stats" id="stats">BIOMASS DENSITY: CALCULATING...</div>
+        </div>
+        <a href="index.html" class="back-btn">← RETURN TO NEXUS</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('biomeCanvas');
+        const ctx = canvas.getContext('2d');
+        const statsBuffer = document.getElementById('stats');
+
+        // 为了保证偏微分方程能在所有设备上跑满 60fps，我们采用低维矩阵计算，再通过 CSS 平滑拉伸
+        const GridW = 240;
+        let GridH = Math.floor(GridW * window.innerHeight / window.innerWidth);
+        
+        canvas.width = GridW;
+        canvas.height = GridH;
+
+        const size = GridW * GridH;
+        
+        // 声明两个场：化学物质 A (基础基质) 和 B (活性生物质)
+        let gridA = new Float32Array(size).fill(1.0);
+        let gridB = new Float32Array(size).fill(0.0);
+        let nextA = new Float32Array(size);
+        let nextB = new Float32Array(size);
+
+        // Gray-Scott 模型核心演化参数（控制分裂出类似珊瑚、有丝分裂和指纹的精美图案）
+        const dA = 1.0;
+        const dB = 0.45;
+        const feed = 0.0545; // 馈送率
+        const kill = 0.062;  // 清除率
+        const dt = 1.0;
+
+        let mouse = { x: -1, y: -1, isDown: false };
+
+        // 初始化：在屏幕中央注入一块初始的“数字生命种子”
+        function initSeed() {
+            let cx = Math.floor(GridW / 2);
+            let cy = Math.floor(GridH / 2);
+            let r = 10;
+            for (let y = cy - r; y < cy + r; y++) {
+                for (let x = cx - r; x < cx + r; x++) {
+                    if (x > 0 && x < GridW && y > 0 && y < GridH) {
+                        if (Math.random() > 0.3) {
+                            gridB[y * GridW + x] = 1.0;
+                        }
+                    }
+                }
+            }
+        }
+        initSeed();
+
+        // 鼠标交互：注入生物质 B
+        function injectNutrients(mx, my) {
+            // 将屏幕坐标映射到矩阵坐标
+            let gx = Math.floor((mx / window.innerWidth) * GridW);
+            let gy = Math.floor((my / window.innerHeight) * GridH);
+            let r = 6; // 注入半径
+
+            for (let y = gy - r; y <= gy + r; y++) {
+                for (let x = gx - r; x <= gx + r; x++) {
+                    if (x > 0 && x < GridW && y > 0 && y < GridH) {
+                        let dist = Math.sqrt((x - gx) ** 2 + (y - gy) ** 2);
+                        if (dist < r) {
+                            gridB[y * GridW + x] = 1.0; // 强制拉满活性物质
+                        }
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('mousedown', (e) => { mouse.isDown = true; injectNutrients(e.clientX, e.clientY); });
+        window.addEventListener('mousemove', (e) => { if (mouse.isDown) injectNutrients(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', () => mouse.isDown = false);
+        
+        // 支持移动端触摸
+        window.addEventListener('touchmove', (e) => {
+            injectNutrients(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        // 核心物理仿真循环（拉普拉斯算子卷积计算）
+        function stepSimulation() {
+            let totalB = 0;
+
+            for (let y = 1; y < GridH - 1; y++) {
+                for (let x = 1; x < GridW - 1; x++) {
+                    let i = y * GridW + x;
+                    
+                    let a = gridA[i];
+                    let b = gridB[i];
+                    totalB += b;
+
+                    // 3x3 九宫格拉普拉斯算子卷积：核心权重（中心-1，四周0.2，对角0.05）
+                    let lapA = a * -1.0;
+                    let lapB = b * -1.0;
+
+                    // 四周邻居
+                    let u = i - GridW, d = i + GridW, l = i - 1, r = i + 1;
+                    lapA += (gridA[u] + gridA[d] + gridA[l] + gridA[r]) * 0.2;
+                    lapB += (gridB[u] + gridB[d] + gridB[l] + gridB[r]) * 0.2;
+
+                    // 对角邻居
+                    let ul = u - 1, ur = u + 1, dl = d - 1, dr = d + 1;
+                    lapA += (gridA[ul] + gridA[ur] + gridA[dl] + gridA[dr]) * 0.05;
+                    lapB += (gridB[ul] + gridB[ur] + gridB[dl] + gridB[dr]) * 0.05;
+
+                    // 反应扩散偏微分方程公式
+                    let reaction = a * b * b;
+                    nextA[i] = a + (dA * lapA - reaction + feed * (1.0 - a)) * dt;
+                    nextB[i] = b + (dB * lapB + reaction - (feed + kill) * b) * dt;
+
+                    // 边界安全限幅
+                    if (nextA[i] < 0) nextA[i] = 0; else if (nextA[i] > 1) nextA[i] = 1;
+                    if (nextB[i] < 0) nextB[i] = 0; else if (nextB[i] > 1) nextB[i] = 1;
+                }
+            }
+
+            // 双缓冲区置换
+            let tempA = gridA; gridA = nextA; nextA = tempA;
+            let tempB = gridB; gridB = nextB; nextB = tempB;
+
+            return totalB / size; // 返回全局生物密度
+        }
+
+        // 渲染像素场
+        function render() {
+            let imgData = ctx.createImageData(GridW, GridH);
+            let data = imgData.data;
+
+            for (let i = 0; i < size; i++) {
+                let a = gridA[i];
+                let b = gridB[i];
+                
+                // 炫技色彩美学：计算 A 与 B 剧烈反应的边缘交界带
+                let edge = a * b * 4.0; 
+
+                // 映射到一种冷冽的高级赛博机体色调（暗色基底，发光青色边缘，纯白核心）
+                let r = Math.floor(b * 255 + edge * 20);
+                let g = Math.floor(b * 255 + edge * 180);
+                let bCol = Math.floor(b * 255 + edge * 255);
+
+                let idx = i * 4;
+                data[idx]     = r;     // Red
+                data[idx + 1] = g;     // Green
+                data[idx + 2] = bCol;  // Blue
+                data[idx + 3] = 255;   // Alpha
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // 动画主循环
+        function loop() {
+            // 每一帧迭代计算 4 次，加速生命涌现演化过程，同时保持画面的丝滑高帧率
+            let density = 0;
+            for (let n = 0; n < 4; n++) {
+                density = stepSimulation();
+            }
+
+            render();
+
+            // 实时更新 UI 状态栏数据
+            statsBuffer.innerText = `BIOMASS DENSITY: ${(density * 100).toFixed(4)}% // SYSTEM: MUTATING`;
+
+            requestAnimationFrame(loop);
+        }
+
+        // 丝滑处理视口变化
+        window.addEventListener('resize', () => {
+            GridH = Math.floor(GridW * window.innerHeight / window.innerWidth);
+            canvas.height = GridH;
+            // 简单防崩重置
+            gridA.fill(1.0); gridB.fill(0.0);
+            initSeed();
+        });
+
+        loop();
+    </script>
+</body>
+</html>

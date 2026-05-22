@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寂静 — 余温</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes breatheRoom {
+  0%, 100% { 
+    background: radial-gradient(ellipse at 50% 50%, #12100e 0%, #0a0908 100%);
+  }
+  50% { 
+    background: radial-gradient(ellipse at 50% 50%, #151210 0%, #0a0908 100%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+@keyframes textFade {
+  0% { opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+body {
+  background: #0a0908;
+  color: #a89888;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: breatheRoom 8s ease-in-out infinite;
+  user-select: none;
+}
+
+.back-link {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(140,130,120,0.3);
+  text-decoration: none;
+  transition: color 2s ease;
+}
+
+.back-link:hover {
+  color: rgba(180,170,160,0.6);
+}
+
+.breath-circle {
+  width: 200px;
+  height: 200px;
+  border: 1px solid rgba(140,130,120,0.15);
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 3s ease;
+}
+
+.breath-circle:hover {
+  border-color: rgba(140,130,120,0.3);
+}
+
+.breath-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border: 1px solid rgba(140,130,120,0.1);
+  border-radius: 50%;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.breath-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(160,150,140,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse 4s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.text-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  letter-spacing: 6px;
+  color: rgba(160,150,140,0.5);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.text-display.active {
+  animation: textFade 6s ease-in-out forwards;
+}
+
+.instruction {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: rgba(140,130,120,0.2);
+  text-align: center;
+  line-height: 2;
+}
+
+/* 角落的暗角 */
+.vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 随机闪烁的微弱光点 */
+.firefly {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(180,170,150,0.3);
+  border-radius: 50%;
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.firefly:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+.firefly:nth-child(2) { top: 70%; left: 80%; animation-delay: 2s; }
+.firefly:nth-child(3) { top: 40%; left: 85%; animation-delay: 4s; }
+</style>
+</head>
+<body>
+
+<div class="vignette"></div>
+
+<a href="index.html" class="back-link">← 返回</a>
+
+<div class="firefly"></div>
+<div class="firefly"></div>
+<div class="firefly"></div>
+
+<div class="breath-circle" id="breath-circle">
+  <div class="breath-inner"></div>
+  <div class="breath-core"></div>
+  <div class="text-display" id="text-display"></div>
+</div>
+
+<div class="instruction">
+  点击圆心<br>
+  跟随呼吸的节奏
+</div>
+
+<script>
+const breathCircle = document.getElementById('breath-circle');
+const textDisplay = document.getElementById('text-display');
+
+const phrases = [
+  '吸气',
+  '屏息',
+  '呼气',
+  '停留',
+  '再吸气',
+  '感受空气进入',
+  '慢慢呼出',
+  '让思绪沉淀',
+  '此刻只有呼吸',
+  '寂静在扩张',
+  '时间变得很轻',
+  '你在这里'
+];
+
+let phraseIndex = 0;
+
+breathCircle.addEventListener('click', () => {
+  const phrase = phrases[phraseIndex % phrases.length];
+  textDisplay.textContent = phrase;
+  textDisplay.classList.remove('active');
+
+  // 强制重绘
+  void textDisplay.offsetWidth;
+
+  textDisplay.classList.add('active');
+  phraseIndex++;
+});
+
+// 自动呼吸提示
+setInterval(() => {
+  if (!textDisplay.classList.contains('active')) {
+    const autoPhrase = phraseIndex % 4 === 0 ? '吸气' : 
+                      phraseIndex % 4 === 1 ? '屏息' :
+                      phraseIndex % 4 === 2 ? '呼气' : '停留';
+    textDisplay.textContent = autoPhrase;
+    textDisplay.classList.remove('active');
+    void textDisplay.offsetWidth;
+    textDisplay.classList.add('active');
+    phraseIndex++;
+  }
+}, 8000);
+</script>
+
+</body>
+</html>

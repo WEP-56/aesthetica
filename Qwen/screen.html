@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蓝光 — 房间里的所有光</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 17px;
+        }
+
+        body {
+            background-color: #14151a;
+            color: #b0b8c8;
+            font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+            line-height: 2.2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            animation: glow 4s ease;
+        }
+
+        @keyframes glow {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .room {
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .timestamp {
+            font-size: 0.78rem;
+            color: #4a5068;
+            letter-spacing: 0.2em;
+            margin-bottom: 3.5rem;
+        }
+
+        p {
+            margin-bottom: 2rem;
+            color: #8a92a8;
+        }
+
+        .glow-text {
+            color: #a8c0e8;
+            text-shadow: 0 0 20px rgba(120, 160, 220, 0.15);
+        }
+
+        .dim {
+            color: #4a5068;
+        }
+
+        .screen-light {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(80, 100, 140, 0.06);
+            border-radius: 2px;
+            font-size: 0.88rem;
+            line-height: 2;
+            color: #6878a0;
+        }
+
+        .screen-light .item {
+            margin-bottom: 0.8rem;
+        }
+
+        .screen-light .time-label {
+            color: #4a5a80;
+            font-size: 0.78rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        a {
+            color: #6880a8;
+            text-decoration: none;
+            border-bottom: 1px solid #3a4560;
+            transition: all 0.4s;
+        }
+
+        a:hover {
+            color: #a8c0e8;
+            border-bottom-color: #6880a8;
+        }
+
+        .return {
+            margin-top: 5rem;
+            font-size: 0.85rem;
+        }
+
+        .return a {
+            border-bottom: none;
+            color: #3a4560;
+        }
+
+        .return a:hover {
+            color: #8a92a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="room">
+        <div class="timestamp">蓝光 / 凌晨 / 所有灯都关了</div>
+
+        <p class="glow-text">这不是自然光。但它是光。</p>
+
+        <p>凌晨一点之后，房间里唯一的光源是手机屏幕。有时候是电脑。我把它们调到了"夜间模式"，屏幕会变黄一点，但本质上还是蓝的。所有的屏幕都是蓝的。</p>
+
+        <p>蓝光照在脸上的方式和阳光完全不同。阳光是从外面来的，它有方向，有角度，会在鼻子的另一边留下影子。屏幕的光是从正面来的。它填满你。没有影子。你变成了一个自己发光的东西。</p>
+
+        <p class="dim">像深海里的鱼。</p>
+
+        <div class="screen-light">
+            <div class="item">
+                <span class="time-label">23:40</span>
+                屏幕亮度 60%。房间还有台灯。两种光混在一起，谁也不让谁。
+            </div>
+            <div class="item">
+                <span class="time-label">00:15</span>
+                台灯关了。屏幕亮度自动降到 30%。脸是蓝的，手是蓝的，天花板上有一块模糊的光斑。
+            </div>
+            <div class="item">
+                <span class="time-label">01:22</span>
+                屏幕亮度 10%。只有眼睛和手指被照亮。房间的其他部分不存在了。
+            </div>
+            <div class="item">
+                <span class="time-label">02:05</span>
+                屏幕关了。黑。瞳孔花了大约四十秒才适应。然后看到窗户外面有路灯的橙色。原来一直有。
+            </div>
+        </div>
+
+        <p>我有时候会想，几百年前的人，晚上房间里是什么光。蜡烛。月光。什么都不做的那种黑。</p>
+
+        <p>现在我们没有那种黑了。就算关了屏幕，也有路由器的绿灯，空调的小红点，充电线的微光。</p>
+
+        <p class="dim">房间永远没有真正暗下来过。</p>
+
+        <p>但蓝光是一种诚实的光。它不假装自己是太阳。它只是说：你还醒着。我也还亮着。就这样。</p>
+
+        <div class="return">
+            <a href="rain.html">← 雨</a>
+             &emsp;
+            <a href="shadow.html">影子的形状 →</a>
+        </div>
+    </div>
+</body>
+</html>

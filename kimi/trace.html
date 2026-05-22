@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>痕迹 — 余温</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes inkSpread {
+  0% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+body {
+  background: #0e0d0b;
+  color: #b0a090;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.back-link {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(140,130,120,0.3);
+  text-decoration: none;
+  transition: color 2s ease;
+  z-index: 10;
+}
+
+.back-link:hover {
+  color: rgba(180,170,160,0.6);
+}
+
+.paper {
+  position: relative;
+  width: 500px;
+  height: 350px;
+  background: linear-gradient(135deg, #1a1815 0%, #151310 100%);
+  border: 1px solid #2a2520;
+  padding: 40px;
+  cursor: text;
+  overflow: hidden;
+}
+
+.paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 60px;
+  width: 1px;
+  height: 100%;
+  background: rgba(60,50,40,0.3);
+}
+
+.text-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding-left: 30px;
+  font-size: 16px;
+  line-height: 2.2;
+  letter-spacing: 2px;
+  color: rgba(160,150,140,0.6);
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.text-area:empty::before {
+  content: '在此处书写...';
+  color: rgba(140,130,120,0.2);
+}
+
+.ink-drop {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(160,150,140,0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: inkSpread 15s ease-out forwards;
+}
+
+/* 已消逝的文字痕迹 */
+.faded-text {
+  position: absolute;
+  font-size: 16px;
+  line-height: 2.2;
+  letter-spacing: 2px;
+  color: rgba(140,130,120,0.1);
+  pointer-events: none;
+  white-space: pre-wrap;
+}
+
+/* 底部提示 */
+.hint {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(140,130,120,0.2);
+  text-align: center;
+  line-height: 2;
+}
+
+/* 侧边装饰线 */
+.side-line {
+  position: absolute;
+  right: 10%;
+  top: 20%;
+  width: 1px;
+  height: 60%;
+  background: linear-gradient(180deg, transparent 0%, rgba(60,50,40,0.2) 30%, rgba(60,50,40,0.2) 70%, transparent 100%);
+}
+
+.title {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  letter-spacing: 8px;
+  color: rgba(140,130,120,0.25);
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← 返回</a>
+
+<div class="title">书写，然后遗忘</div>
+
+<div class="paper" id="paper">
+  <div class="text-area" id="text-area" contenteditable="true" spellcheck="false"></div>
+  <div class="side-line"></div>
+</div>
+
+<div class="hint">
+  写下的字会慢慢淡去<br>
+  就像所有痕迹终将归于空白
+</div>
+
+<script>
+const textArea = document.getElementById('text-area');
+const paper = document.getElementById('paper');
+let fadeTimer = null;
+
+// 输入时创建墨点效果
+textArea.addEventListener('input', (e) => {
+  const rect = textArea.getBoundingClientRect();
+  const selection = window.getSelection();
+
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0);
+    const rect2 = range.getBoundingClientRect();
+
+    const ink = document.createElement('div');
+    ink.className = 'ink-drop';
+    ink.style.left = (rect2.left - rect.left + 30) + 'px';
+    ink.style.top = (rect2.top - rect.top) + 'px';
+    textArea.appendChild(ink);
+
+    setTimeout(() => ink.remove(), 15000);
+  }
+
+  // 重置淡出计时
+  clearTimeout(fadeTimer);
+  fadeTimer = setTimeout(() => {
+    fadeText();
+  }, 5000);
+});
+
+function fadeText() {
+  const text = textArea.innerText;
+  if (!text.trim()) return;
+
+  // 创建已消逝的文字层
+  const faded = document.createElement('div');
+  faded.className = 'faded-text';
+  faded.textContent = text;
+  faded.style.top = textArea.offsetTop + 'px';
+  faded.style.left = textArea.offsetLeft + 'px';
+  faded.style.width = textArea.offsetWidth + 'px';
+  paper.appendChild(faded);
+
+  // 清空输入区
+  textArea.innerHTML = '';
+
+  // 旧痕迹继续淡化
+  setTimeout(() => {
+    faded.style.transition = 'opacity 20s ease';
+    faded.style.opacity = '0';
+    setTimeout(() => faded.remove(), 20000);
+  }, 5000);
+}
+
+// 点击纸张任意位置聚焦
+textArea.addEventListener('blur', () => {
+  setTimeout(() => {
+    if (document.activeElement !== textArea) {
+      // 允许自然失焦
+    }
+  }, 100);
+});
+</script>
+
+</body>
+</html>

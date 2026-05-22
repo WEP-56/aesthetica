@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>票</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: linear-gradient(
+                180deg,
+                #4a4a4a 0%,
+                #3a3a3a 40%,
+                #2a2a2a 70%,
+                #1a1a1a 100%
+            );
+            font-family: "Courier New", "Lucida Console", monospace;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 船票 */
+        .ticket {
+            position: relative;
+            width: 280px;
+            height: 120px;
+            background: linear-gradient(
+                180deg,
+                #d4a868 0%,
+                #c49858 50%,
+                #b48848 100%
+            );
+            border-radius: 4px;
+            display: flex;
+            box-shadow:
+                0 8px 30px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .ticket:hover {
+            transform: rotate(-2deg) translateY(-5px);
+        }
+
+        /* 票面左侧 */
+        .ticket-left {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 票面右侧 - 打孔区域 */
+        .ticket-right {
+            width: 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 打孔 */
+        .ticket-right::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #2a2a2a;
+            border-radius: 50%;
+            box-shadow: 0 80px 0 #2a2a2a;
+        }
+
+        /* 票面信息 */
+        .ticket-header {
+            font-size: 9px;
+            color: #6a5040;
+            letter-spacing: 3px;
+        }
+
+        .ticket-destination {
+            font-size: 14px;
+            color: #4a3020;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        .ticket-info {
+            font-size: 8px;
+            color: #8a7060;
+            letter-spacing: 1px;
+            margin-top: auto;
+        }
+
+        .ticket-barcode {
+            width: 100%;
+            height: 30px;
+            display: flex;
+            gap: 2px;
+            margin-top: auto;
+        }
+
+        .barcode-line {
+            height: 100%;
+            background: #4a3020;
+            flex-grow: 1;
+        }
+
+        .barcode-line:nth-child(odd) { flex-grow: 2; }
+        .barcode-line:nth-child(3) { flex-grow: 0.5; }
+        .barcode-line:nth-child(7) { flex-grow: 3; }
+
+        /* 票面虚线 */
+        .ticket::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 240px;
+            width: 1px;
+            border-left: 1px dashed rgba(0,0,0,0.2);
+        }
+
+        /* 记忆文字 */
+        .memory {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            max-width: 300px;
+            cursor: pointer;
+        }
+
+        .memory-line {
+            font-size: 12px;
+            color: rgba(200,180,140,0.5);
+            line-height: 2.2;
+            letter-spacing: 2px;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        .memory:hover .memory-line {
+            opacity: 0.85;
+        }
+
+        /* 褪色效果 */
+        .memory.fading .memory-line {
+            animation: fadeTicket 12s ease forwards;
+        }
+
+        @keyframes fadeTicket {
+            0% { opacity: 0.85; }
+            100% { opacity: 0; }
+        }
+
+        /* 背景装饰 - 旧船 */
+        .old-ship {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.05;
+        }
+
+        .ship-body {
+            width: 200px;
+            height: 40px;
+            background: #ffffff;
+            border-radius: 0 0 50% 50%;
+        }
+
+        .ship-mast {
+            width: 3px;
+            height: 60px;
+            background: #ffffff;
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            margin-left: -1.5px;
+        }
+
+        /* 进度条 */
+        .decay-progress {
+            position: fixed;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: rgba(200,180,140,0.15);
+            border-radius: 1px;
+        }
+
+        .decay-bar {
+            height: 100%;
+            background: rgba(200,180,140,0.4);
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+
+        /* 返回链接 */
+        .back {
+            position: fixed;
+            top: 5%;
+            left: 5%;
+            font-size: 10px;
+            color: rgba(200,180,140,0.3);
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back:hover {
+            color: rgba(200,180,140,0.6);
+        }
+
+        /* 页码 */
+        .page-title {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+            font-size: 10px;
+            color: rgba(200,180,140,0.2);
+            letter-spacing: 3px;
+        }
+
+        /* 标题 */
+        .title {
+            position: fixed;
+            top: 5%;
+            right: 5%;
+            font-size: 10px;
+            color: rgba(200,180,140,0.2);
+            letter-spacing: 3px;
+            writing-mode: vertical-rl;
+        }
+
+        /* 飘落的灰尘 */
+        .dust {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .dust-particle {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: rgba(200,180,140,0.15);
+            animation: dustFall linear infinite;
+        }
+
+        .dust-particle:nth-child(1) { left: 30%; animation-duration: 20s; }
+        .dust-particle:nth-child(2) { left: 50%; animation-duration: 25s; animation-delay: 5s; }
+        .dust-particle:nth-child(3) { left: 70%; animation-duration: 22s; animation-delay: 10s; }
+        .dust-particle:nth-child(4) { left: 40%; animation-duration: 28s; animation-delay: 3s; }
+        .dust-particle:nth-child(5) { left: 60%; animation-duration: 24s; animation-delay: 8s; }
+
+        @keyframes dustFall {
+            0% { transform: translateY(-10vh); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* 票根残留 */
+        .ticket-stub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 120px;
+            border: 1px solid rgba(200,180,140,0.1);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        /* 结束提示 */
+        .end-mark {
+            position: fixed;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: rgba(200,180,140,0.15);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back">返回</a>
+    <span class="title">潮汐信笺</span>
+
+    <div class="container">
+        <div class="dust">
+            <div class="dust-particle"></div>
+            <div class="dust-particle"></div>
+            <div class="dust-particle"></div>
+            <div class="dust-particle"></div>
+            <div class="dust-particle"></div>
+        </div>
+
+        <div class="old-ship">
+            <div class="ship-mast"></div>
+            <div class="ship-body"></div>
+        </div>
+
+        <div class="ticket"></div>
+        <div class="ticket-stub"></div>
+
+        <div class="memory" id="memory">
+            <div class="memory-line">这是最后一次航程的船票</div>
+            <div class="memory-line">目的地那一栏</div>
+            <div class="memory-line">被海水浸得看不清了</div>
+            <div class="memory-line">也好</div>
+            <div class="memory-line">也许没有目的地</div>
+            <div class="memory-line">才是真正的远航</div>
+        </div>
+
+        <div class="decay-progress">
+            <div class="decay-bar" id="decayBar"></div>
+        </div>
+    </div>
+
+    <span class="page-title">肆</span>
+    <span class="end-mark">— 终 —</span>
+
+    <script>
+        const memory = document.getElementById('memory');
+        const decayBar = document.getElementById('decayBar');
+        let decayProgress = 1;
+        let isHovering = false;
+        let decayInterval;
+
+        memory.addEventListener('mouseenter', () => {
+            isHovering = true;
+            cancelAnimationFrame(decayInterval);
+            memory.classList.remove('fading');
+            decayProgress = 1;
+            decayBar.style.width = (decayProgress * 100) + '%';
+            // 逐行淡入
+            memory.querySelectorAll('.memory-line').forEach((line, i) => {
+                setTimeout(() => {
+                    line.style.opacity = '0.85';
+                }, i * 350);
+            });
+        });
+
+        memory.addEventListener('mouseleave', () => {
+            isHovering = false;
+            memory.classList.add('fading');
+            startDecay();
+        });
+
+        function startDecay() {
+            function decay() {
+                if (isHovering) return;
+
+                decayProgress -= 0.0015;
+                decayBar.style.width = (Math.max(0, decayProgress) * 100) + '%';
+
+                if (decayProgress > 0) {
+                    decayInterval = requestAnimationFrame(decay);
+                }
+            }
+            decay();
+        }
+
+        // 初始自动开始消散
+        setTimeout(() => {
+            memory.classList.add('fading');
+            startDecay();
+        }, 2000);
+    </script>
+
+<style>
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.inland-security-footer {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  right: 0;
+  width: fit-content;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tooltip-container {
+  position: relative;
+}
+
+.trigger-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.minimax-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 300;
+  color: #adadad;
+  text-decoration: none;
+}
+
+.minimax-link:visited {
+  color: #adadad;
+}
+
+.minimax-link:hover {
+  color: #666666;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 16px; /* 8px 内容间距 + 8px 用于鼠标移动的透明区域 */
+  font-size: 12px;
+  line-height: 17px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #171717;
+}
+
+/* 创建透明的连接区域，让鼠标可以平滑移动到 tooltip */
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.tooltip-container:hover .tooltip-content {
+  display: flex;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.beian-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #171717;
+}
+
+.beian-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 2px;
+}
+
+.underline-text {
+  color: #171717;
+  text-decoration: underline;
+}
+
+.underline-text:hover {
+  color: #000000;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .trigger-content {
+    background-color: transparent;
+  }
+
+  .minimax-link,
+  .minimax-link:visited {
+    color: #666666;
+  }
+
+  .minimax-link:hover {
+    color: #adadad;
+  }
+
+  .tooltip-content {
+    background-color: #262626;
+    color: #ededed;
+  }
+
+  .beian-link,
+  .underline-text {
+    color: #ededed;
+  }
+
+  .underline-text:hover {
+    color: #ffffff;
+  }
+}
+
+</style>
+<div class="inland-security-footer">
+  <div class="tooltip-container">
+    <div class="trigger-content">
+      <a href="https://www.minimaxi.com/" target="_blank" rel="noreferrer" class="minimax-link">
+        <span>© 2026 MiniMax</span>
+      </a>
+    </div>
+    <div class="tooltip-content">
+      <section class="info-section">
+        <span>上海稀宇科技有限公司</span>
+      </section>
+
+      <section class="info-section">
+        <a class="beian-link" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179" target="_blank" rel="noreferrer">
+          <img alt="hailuo-beian-icon" src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png" class="beian-icon">
+          <span class="underline-text">沪公网安备31010402010179号</span>
+        </a>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" class="underline-text">
+          沪ICP备2023003282号-38
+        </a>
+      </section>
+
+      <section class="info-section">
+        <span>模型名称：MiniMax</span>
+        <span>备案号：Shanghai-MiniMax-202505230046</span>
+      </section>
+
+      <section class="info-section">
+        <a href="https://agent.minimaxi.com/doc/zh/terms-of-service.html" target="_blank" rel="noreferrer" class="underline-text">
+          用户协议
+        </a>
+        <a href="https://agent.minimaxi.com/doc/zh/privacy-policy.html" target="_blank" rel="noreferrer" class="underline-text">
+          隐私政策
+        </a>
+      </section>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
