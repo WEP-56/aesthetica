@@ -80,8 +80,20 @@
     return String(value || "")
       .trim()
       .replace(/\\/g, "/")
-      .replace(/^\/+/, "")
       .replace(/^\.\//, "");
+  }
+
+  function filePathFromHref(value) {
+    return normalizePath(value).split("#")[0].split("?")[0];
+  }
+
+  function isSafeRelativePath(value) {
+    var raw = String(value || "").trim();
+    var normalized = normalizePath(raw);
+    if (!normalized) return false;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) return false;
+    if (/^[\\/]/.test(raw)) return false;
+    return !normalized.split("/").includes("..");
   }
 
   function slugify(value) {
@@ -130,6 +142,46 @@
     var writable = await handle.createWritable();
     await writable.write(content);
     await writable.close();
+  }
+
+  async function readBytes(handle) {
+    var file = await handle.getFile();
+    return new Uint8Array(await file.arrayBuffer());
+  }
+
+  async function writeBytes(handle, bytes) {
+    var writable = await handle.createWritable();
+    await writable.write(new Blob([bytes]));
+    await writable.close();
+  }
+
+  function textBytes(value) {
+    return new TextEncoder().encode(value);
+  }
+
+  function asciiIndexOf(bytes, needleText) {
+    var needle = textBytes(needleText.toLowerCase());
+    for (var i = 0; i <= bytes.length - needle.length; i++) {
+      var matched = true;
+      for (var j = 0; j < needle.length; j++) {
+        var code = bytes[i + j];
+        if (code >= 65 && code <= 90) code += 32;
+        if (code !== needle[j]) {
+          matched = false;
+          break;
+        }
+      }
+      if (matched) return i;
+    }
+    return -1;
+  }
+
+  function insertBytes(bytes, index, insert) {
+    var next = new Uint8Array(bytes.length + insert.length);
+    next.set(bytes.slice(0, index), 0);
+    next.set(insert, index);
+    next.set(bytes.slice(index), index + insert.length);
+    return next;
   }
 
   async function getFileByPath(path, create) {
@@ -422,6 +474,9 @@
   async function refreshHtmlPaths() {
     htmlPaths = [];
     await walkDirectory(rootHandle, "");
+    htmlPaths = htmlPaths.filter(function (path) {
+      return path !== "gallery-editor.html";
+    });
     htmlPaths.sort(function (a, b) {
       return a.localeCompare(b);
     });
@@ -463,6 +518,12 @@
 
   async function saveIndex() {
     updateSelectedFromForm();
+    var invalid = entries.find(function (entry) {
+      return !isSafeRelativePath(entry.href);
+    });
+    if (invalid) {
+      throw new Error("路径必须是画廊根目录下的相对路径：" + invalid.href);
+    }
     var next = buildIndexHtml();
     await writeFile(indexHandle, next);
     indexText = next;
@@ -471,19 +532,23 @@
   }
 
   async function installNavForPath(path) {
-    var normalized = normalizePath(path);
+    var original = String(path || "").trim();
+    if (!original) return "skipped";
+    if (!isSafeRelativePath(original)) {
+      throw new Error("只能处理画廊根目录下的相对 HTML 路径：" + path);
+    }
+    var normalized = filePathFromHref(original);
     if (!normalized || normalized === "index.html" || normalized === "gallery-editor.html") {
       return "skipped";
     }
     var handle = await getFileByPath(normalized, false);
-    var text = await readFile(handle);
-    if (text.includes("gallery-nav.js")) return "exists";
-    var body = /<\/body>/i.exec(text);
-    if (!body) return "missing-body";
+    var bytes = await readBytes(handle);
+    if (asciiIndexOf(bytes, "gallery-nav.js") >= 0) return "exists";
+    var bodyIndex = asciiIndexOf(bytes, "</body>");
+    if (bodyIndex < 0) return "missing-body";
     var scriptSrc = getRelativeDepth(normalized) + "assets/gallery-nav.js";
-    var insert = "\n  <script src=\"" + scriptSrc + "\"></script>\n";
-    var next = text.slice(0, body.index) + insert + text.slice(body.index);
-    await writeFile(handle, next);
+    var insert = textBytes("\n  <script src=\"" + scriptSrc + "\"></script>\n");
+    await writeBytes(handle, insertBytes(bytes, bodyIndex, insert));
     return "added";
   }
 
