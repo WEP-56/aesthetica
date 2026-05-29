@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Atlas Editor</title>
+  <link rel="stylesheet" href="assets/gallery-editor.css">
+</head>
+<body>
+  <main class="editor-shell">
+    <section class="topbar">
+      <div>
+        <p class="eyebrow">LOCAL TOOL</p>
+        <h1>Model Atlas Editor</h1>
+      </div>
+      <div class="topbar-actions">
+        <button id="pickRoot" type="button">选择画廊文件夹</button>
+        <button id="reloadIndex" type="button" disabled>重新读取</button>
+        <button id="saveIndex" type="button" disabled>保存 index.html</button>
+      </div>
+    </section>
+
+    <section class="notice" id="supportNotice">
+      这个编辑器需要 Chromium 的文件夹写入权限。打开后先选择包含 index.html 的画廊根目录。
+    </section>
+
+    <section class="workspace">
+      <aside class="sidebar">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>入口卡片</h2>
+            <button id="addEntry" type="button" disabled>新增</button>
+          </div>
+          <div id="entryList" class="entry-list" aria-label="入口卡片列表"></div>
+        </div>
+
+        <div class="panel">
+          <h2>返回组件</h2>
+          <label>
+            目标 HTML 路径
+            <input id="navTarget" list="htmlPaths" type="text" placeholder="example/index.html" disabled>
+          </label>
+          <datalist id="htmlPaths"></datalist>
+          <div class="stack-actions">
+            <button id="installSelectedNav" type="button" disabled>为当前路径添加</button>
+            <button id="installAllNav" type="button" disabled>批量添加到全部 HTML</button>
+          </div>
+          <p class="hint">批量模式会跳过根目录 index.html 和这个编辑器，只给作品页或系列页挂载 assets/gallery-nav.js。</p>
+        </div>
+      </aside>
+
+      <section class="editor-panel">
+        <div class="panel form-panel">
+          <div class="panel-head">
+            <h2>编辑卡片</h2>
+            <div class="move-actions">
+              <button id="moveUp" type="button" disabled>上移</button>
+              <button id="moveDown" type="button" disabled>下移</button>
+              <button id="deleteEntry" type="button" disabled>删除</button>
+            </div>
+          </div>
+
+          <form id="entryForm" class="entry-form">
+            <div class="grid-fields">
+              <label>
+                模型名
+                <input name="model" type="text" placeholder="Gemini" disabled>
+              </label>
+              <label>
+                标题
+                <textarea name="title" rows="2" placeholder="Digital&#10;Solitude" disabled></textarea>
+              </label>
+              <label>
+                指向路径
+                <input name="href" list="htmlPaths" type="text" placeholder="gemini/index.html" disabled>
+              </label>
+              <label>
+                入口标题
+                <input name="linkTitle" type="text" placeholder="Index" disabled>
+              </label>
+              <label>
+                标语
+                <input name="tagline" type="text" placeholder="Main index for the folder" disabled>
+              </label>
+              <label>
+                入口说明
+                <input name="linkDesc" type="text" placeholder="Open the directory" disabled>
+              </label>
+              <label>
+                卡片说明
+                <textarea name="note" rows="3" placeholder="Archive entry for the works." disabled></textarea>
+              </label>
+              <label>
+                编号
+                <input name="pageNum" type="text" placeholder="00" disabled>
+              </label>
+              <label>
+                标签底色
+                <input name="accent" type="color" value="#e8e0ff" disabled>
+              </label>
+              <label>
+                标签文字色
+                <input name="textColor" type="color" value="#4a3a8a" disabled>
+              </label>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel preview-panel">
+          <div class="panel-head">
+            <h2>预览</h2>
+            <span id="saveState" class="save-state">未选择文件夹</span>
+          </div>
+          <div class="preview-stage">
+            <div id="cardPreview" class="preview-card empty">选择或新增一个入口</div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="assets/gallery-editor.js"></script>
+</body>
+</html>
